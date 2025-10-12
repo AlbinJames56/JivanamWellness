@@ -1,59 +1,9 @@
-{{-- resources/views/therapy.blade.php --}}
+{{-- resources\views\pages\TherapyPage.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
     @php
-        $therapies = [
-            [
-                'title' => 'Panchakarma Detox',
-                'summary' =>
-                    'Complete body purification through five therapeutic actions. Eliminates toxins and restores natural balance for optimal health.',
-                'image' => 'https://images.unsplash.com/photo-1736748580995-1d5faa88ce4d?q=80&w=1080',
-                'duration' => '7-21 days',
-                'tag' => 'Detox',
-                'featured' => true,
-            ],
-            [
-                'title' => 'Abhyanga Massage',
-                'summary' =>
-                    'Traditional full-body oil massage using warm herbal oils. Improves circulation and calms the nervous system.',
-                'image' => 'https://images.unsplash.com/photo-1757689314932-bec6e9c39e51?q=80&w=1080',
-                'duration' => '60-90 min',
-                'tag' => 'Massage',
-            ],
-            [
-                'title' => 'Shirodhara Therapy',
-                'summary' =>
-                    'Meditative treatment with warm oil flowing over the forehead. Deeply relaxes mind and nervous system.',
-                'image' => 'https://images.unsplash.com/photo-1589548234057-881a5d872453?q=80&w=1080',
-                'duration' => '45-60 min',
-                'tag' => 'Relaxation',
-            ],
-            [
-                'title' => 'Kizhi Therapy',
-                'summary' =>
-                    'Heated herbal poultices applied to body. Excellent for joint pain, muscle stiffness, and inflammation.',
-                'image' => 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?q=80&w=1080',
-                'duration' => '60 min',
-                'tag' => 'Pain Relief',
-            ],
-            [
-                'title' => 'Nasya Treatment',
-                'summary' =>
-                    'Nasal administration of medicated oils. Clears respiratory passages and enhances mental clarity.',
-                'image' => 'https://images.unsplash.com/photo-1667199021925-5778681d0406?q=80&w=1080',
-                'duration' => '30 min',
-                'tag' => 'Respiratory',
-            ],
-            [
-                'title' => 'Yoga Therapy',
-                'summary' =>
-                    'Therapeutic yoga sessions tailored to your dosha and health goals. Combines asanas, pranayama, and meditation.',
-                'image' => 'https://images.unsplash.com/photo-1589548234057-881a5d872453?q=80&w=1080',
-                'duration' => '60-75 min',
-                'tag' => 'Wellness',
-            ],
-        ];
+
 
         $testimonials = [
             [
@@ -262,8 +212,10 @@
                     @foreach ($therapies as $therapy)
                         <article class="card rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
                             <div class="h-44 bg-gray-100 overflow-hidden">
-                                <img src="{{ $therapy['image'] }}" alt="{{ $therapy['title'] }}"
-                                    class="w-full h-full object-cover" />
+                        <img src="{{ $therapy->image ? asset('storage/' . $therapy->image) : asset('fallback.jpg') }}" class="w-full h-full object-cover" />
+
+
+
                             </div>
 
                             <div class="p-5 space-y-3">

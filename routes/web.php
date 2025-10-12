@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\TherapyController;
 use Illuminate\Support\Facades\Route;
 
 // Home page
@@ -10,10 +11,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Therapy page
-Route::get('/therapy', function () {
-    return view('pages.TherapyPage');
-})->name('therapy');
-
+Route::get('/therapy', [TherapyController::class, 'index'])->name('therapy');
 // Pain Management page
 Route::get('/pain-management', function () {
     return view('pages.pain-management');
