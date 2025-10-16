@@ -31,11 +31,17 @@
             align-items: start;
             margin-top: 1rem;
         }
+
         @media (max-width: 1024px) {
-            .jv-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .jv-dashboard-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
+
         @media (max-width: 640px) {
-            .jv-dashboard-grid { grid-template-columns: 1fr; }
+            .jv-dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .jv-dashboard-button {
@@ -47,40 +53,87 @@
             border-radius: 0.6rem;
             color: white;
             text-decoration: none;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
             transition: transform .08s ease, box-shadow .08s ease;
             min-height: 52px;
         }
+
         .jv-dashboard-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
-        .jv-gold  { background: #c77a00; }
-        .jv-green { background: #16a34a; }
-        .jv-blue  { background: #2563eb; }
-        .jv-orange{ background: #ea580c; }
-        .jv-red   { background: #dc2626; }
-        .jv-teal  { background: #059669; }
+
+        .jv-gold {
+            background: #c77a00;
+        }
+
+        .jv-green {
+            background: #16a34a;
+        }
+
+        .jv-blue {
+            background: #2563eb;
+        }
+
+        .jv-orange {
+            background: #ea580c;
+        }
+
+        .jv-red {
+            background: #dc2626;
+        }
+
+        .jv-teal {
+            background: #059669;
+        }
 
         /* center container width like your example */
-        .jv-container { max-width: 1100px; margin-left: auto; margin-right: auto; padding: 0 1rem; }
+        .jv-container {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 1rem;
+        }
     </style>
+    @php
+        // Use the correct resource FQCN (namespace + class)
+        $articleResourceClass = \App\Filament\Resources\Articles\ArticleResource::class;
 
+        // Try to resolve Filament resource URLs; fall back to a direct panel URL
+        try {
+            $articlesIndexUrl = $articleResourceClass::getUrl('index');
+        } catch (\Throwable $e) {
+            // fallback direct URL (panel path + resource slug)
+            $articlesIndexUrl = url('jivanam-admin/resources/articles') ?? '#';
+        }
+
+        try {
+            $articlesCreateUrl = $articleResourceClass::getUrl('create');
+        } catch (\Throwable $e) {
+            $articlesCreateUrl = url('jivanam-admin/resources/articles/create') ?? '#';
+        }
+    @endphp
     <div class="jv-container">
 
 
         <div class="jv-dashboard-grid">
             {{-- Manage Therapies --}}
             <a href="{{ \App\Filament\Resources\Therapies\TherapyResource::getUrl('index') }}"
-               class="jv-dashboard-button jv-gold">
+                class="jv-dashboard-button jv-gold">
                 🌿 Manage Therapies
             </a>
 
             {{-- Manage Testimonials (create this resource if not present) --}}
             <a href="{{ \App\Filament\Resources\Testimonials\TestimonialResource::getUrl('index') ?? '#' }}"
-               class="jv-dashboard-button jv-green">
+                class="jv-dashboard-button jv-green">
                 💬 Manage Testimonials
             </a>
+            {{-- Manage Articles --}}
+            <a href="{{ $articlesIndexUrl }}" class="jv-dashboard-button jv-blue" @if($articlesIndexUrl === '#')
+            title="Articles resource not registered" @endif>
+                📰 Manage Articles
+            </a>
+
 
 
         </div>

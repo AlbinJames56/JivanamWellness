@@ -14,15 +14,27 @@ class Therapy extends Model
         'title',
         'slug',
         'summary',
+        'excerpt',
         'content',
         'image',
+        'image_alt',
+        'gallery', // json
         'duration',
         'tag',
         'featured',
+        'price',
+        'price_currency',
+        'available',
+        'meta_title',
+        'meta_description',
     ];
 
     protected $casts = [
         'featured' => 'boolean',
+        'available' => 'boolean',
+        'benefits' => 'array',
+        'contraindications' => 'array',
+        'gallery' => 'array',
     ];
 
     public function testimonials()

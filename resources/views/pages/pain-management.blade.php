@@ -1,5 +1,16 @@
 {{-- resources/views/pages/pain-management.blade.php --}}
 @extends('layouts.app')
+@php
+
+    // If controller didn't pass $articles, try to load 3 latest published.
+    if (!isset($articles)) {
+        $articles = \App\Models\Article::query()
+            ->where('published', true)
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get();
+    }
+@endphp
 
 @section('content')
     <div class="min-h-screen bg-background">
@@ -15,7 +26,8 @@
                     </h1>
 
                     <div class="space-y-4 text-lg text-muted-foreground leading-relaxed   mx-auto">
-                        <p>Experience gentle, effective pain management through time-tested Ayurvedic therapies. Our holistic approach addresses root causes, providing sustainable relief without harsh side
+                        <p>Experience gentle, effective pain management through time-tested Ayurvedic therapies. Our
+                            holistic approach addresses root causes, providing sustainable relief without harsh side
                             effects.</p>
                     </div>
 
@@ -147,44 +159,35 @@
                     </p>
                 </div>
 
-                @php
-                    $blogs = [
-                        [
-                            'title' => 'Understanding Chronic Pain: An Ayurvedic Perspective',
-                            'excerpt' =>
-                                'Discover how Ayurveda views chronic pain differently and why this approach leads to more effective, lasting relief.',
-                            'readTime' => '5 min read',
-                        ],
-                        [
-                            'title' => '5 Daily Habits to Prevent Back Pain Naturally',
-                            'excerpt' =>
-                                'Simple lifestyle changes and exercises that can significantly reduce your risk of developing chronic back pain.',
-                            'readTime' => '3 min read',
-                        ],
-                        [
-                            'title' => 'The Mind-Body Connection in Pain Management',
-                            'excerpt' =>
-                                'How stress and emotions contribute to physical pain, and effective techniques to break this cycle.',
-                            'readTime' => '4 min read',
-                        ],
-                    ];
-                @endphp
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    @foreach ($blogs as $blog)
-                        <div class="card hover:shadow-md transition-shadow cursor-pointer group">
+                    @foreach ($articles as $article)
+                        <a href="{{ route('articles.show', $article->slug) }}"
+                            class="card hover:shadow-md transition-shadow group">
                             <div class="space-y-4">
+                                @if($article->image)
+                                    <img src="{{ asset('storage/' . ltrim($article->image, '/')) }}" alt="{{ $article->title }}"
+                                        class="w-full h-44 object-cover rounded-lg">
+                                @endif
+
                                 <h3 class="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                    {{ $blog['title'] }}</h3>
-                                <p class="text-sm text-muted-foreground leading-relaxed">{{ $blog['excerpt'] }}</p>
+                                    {{ $article->title }}
+                                </h3>
+
+                                <p class="text-sm text-muted-foreground leading-relaxed">
+                                    {{ $article->excerpt ?? Str::limit(strip_tags($article->content), 120) }}
+                                </p>
+
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs text-muted-foreground">{{ $blog['readTime'] }}</span>
+                                    <span class="text-xs text-muted-foreground">
+                                        {{ $article->read_time ?? $article->estimated_read_time }} min read
+                                    </span>
                                     @include('components.icon', ['name' => 'arrow-right', 'class' => 'w-4 h-4 text-primary group-hover:translate-x-1 transition-transform'])
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
+
             </div>
         </section>
 

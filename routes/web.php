@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\TherapyController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,9 @@ Route::get('/', function () {
 
 // Therapy page
 Route::get('/therapy', [TherapyController::class, 'index'])->name('therapy');
+Route::get('/therapies/{slug}', [TherapyController::class, 'show'])->name(
+    'therapies.show'
+);
 // Pain Management page
 Route::get('/pain-management', function () {
     return view('pages.pain-management');
@@ -26,7 +30,12 @@ Route::get('/clinics', function () {
 Route::get('/about', function () {
     return view('pages.about');
 })->name('about');
-
+Route::get('/articles', [ArticleController::class, 'index'])->name(
+    'articles.index'
+);
+Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name(
+    'articles.show'
+);
 // Blog page
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 

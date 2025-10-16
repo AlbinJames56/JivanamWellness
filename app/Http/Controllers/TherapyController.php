@@ -53,4 +53,19 @@ class TherapyController extends Controller
             compact('therapies', 'testimonials', 'faqs')
         );
     }
+    public function show($slug)
+    {
+        $therapy = Therapy::where('slug', $slug)->firstOrFail();
+
+        // Optionally fetch related testimonials or other data
+        $relatedTestimonials = Testimonial::where('therapy_id', $therapy->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view(
+            'components.Therapy.therapy-show',
+            compact('therapy', 'relatedTestimonials')
+        );
+    }
 }
