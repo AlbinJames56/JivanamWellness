@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\PainTechniqueController;
 use App\Http\Controllers\TherapyController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,11 +18,10 @@ Route::get('/therapies/{slug}', [TherapyController::class, 'show'])->name(
     'therapies.show'
 );
 // Pain Management page
-Route::get('/pain-management', function () {
-    return view('pages.pain-management');
-})->name('pain-management');
 
-// Clinics page
+Route::get('/pain-management', [PainTechniqueController::class, 'index'])->name(
+    'pain-management'
+); // Clinics page
 Route::get('/clinics', function () {
     return view('pages.clinics');
 })->name('clinics');

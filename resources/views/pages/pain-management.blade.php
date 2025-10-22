@@ -1,4 +1,4 @@
-{{-- resources/views/pages/pain-management.blade.php --}}
+{{-- resources\views\pages\pain-management.blade.php --}}
 @extends('layouts.app')
 @php
 
@@ -17,7 +17,7 @@
 
         {{-- Hero Section --}}
         <section class="relative py-20 lg:py-28 bg-gradient-to-br from-muted/20 to-background">
-            <div class="max-w-[1100px] mx-auto px-5 text-center space-y-6">
+            <div class="  mx-auto px-5 text-center space-y-6">
                 <div class="max-w-4xl mx-auto space-y-6">
                     <span class="inline-block badge-accent">Natural Pain Relief</span>
 
@@ -143,6 +143,23 @@
                             <p class="text-sm text-muted-foreground">{{ $c['description'] }}</p>
                         </div>
                     @endforeach
+                </div>
+            </div>
+        </section>
+        <section class="py-16 lg:py-24">
+            <div class="max-w-[1100px] mx-auto px-5">
+                <div class="text-center space-y-4 mb-12">
+                    <h2 class="text-3xl lg:text-4xl font-semibold">Our Pain Management Techniques</h2>
+                    <p class="text-lg text-muted-foreground  mx-auto">Comprehensive therapies designed to address
+                        different types of pain and underlying causes</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @forelse($techniques as $t)
+                        <x-painManagement.technique-card :technique="$t" variant="more" />
+                    @empty
+                        <div class="col-span-full text-center text-muted-foreground">No techniques available yet.</div>
+                    @endforelse
                 </div>
             </div>
         </section>
