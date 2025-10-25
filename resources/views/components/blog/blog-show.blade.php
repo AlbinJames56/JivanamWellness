@@ -11,7 +11,7 @@
             {{-- HERO Section --}}
             <header class="relative rounded-3xl overflow-hidden shadow-lg mb-8">
                 <div class="relative h-72 md:h-96 lg:h-[520px]">
-                    @if($article?->image)
+                    @if($article?->image)z
                         <img src="{{ Storage::disk('public')->url($article->image) }}" alt="{{ $article->title }}"
                             class="w-full h-full object-cover transform transition-transform duration-700 ease-out will-change-transform"
                             style="transform-origin: center;" id="hero-image">

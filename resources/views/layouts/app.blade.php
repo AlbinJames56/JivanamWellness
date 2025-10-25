@@ -8,6 +8,9 @@
 
     {{-- Use Mix only if mix-manifest.json exists (i.e. you built with Mix) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- CDN (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="..." crossorigin="anonymous" />
 
     {{-- Alpine (you can install via npm instead) --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -23,7 +26,7 @@
 
     @include('components.commons.footer')
 
-  @stack('scripts')
+    @stack('scripts')
 </body>
 
 </html>

@@ -1,66 +1,38 @@
 @php
-    $testimonials = [
+// Accept $testimonials passed from controller. Provide fallback sample only if empty.
+$testimonials = $testimonials ?? collect();
+
+if ($testimonials->isEmpty()) {
+    // Fallback array (your existing sample) — keep for local dev
+    $testimonials = collect([
         [
             'name' => 'Sarah Johnson',
             'location' => 'San Francisco, CA',
             'avatar' => 'https://images.unsplash.com/photo-1494790108755-2616b169b037?w=150&h=150&fit=crop&crop=face',
             'rating' => 5,
-            'text' =>
-                'The Panchakarma treatment completely transformed my health. I feel more energized and balanced than I have in years. The practitioners were incredibly knowledgeable and caring throughout the entire process.',
+            'text' => 'The Panchakarma treatment completely transformed my health...',
             'treatment' => 'Panchakarma Detox',
         ],
-        [
-            'name' => 'Michael Chen',
-            'location' => 'Berkeley, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' =>
-                "Shirodhara therapy helped me overcome chronic stress and insomnia. The deep relaxation I experienced was unlike anything I've tried before. Highly recommend this ancient healing practice.",
-            'treatment' => 'Shirodhara Therapy',
-            'isVideo' => true,
-            'videoThumbnail' =>
-                'https://images.unsplash.com/photo-1589548234057-881a5d872453?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-        ],
-        [
-            'name' => 'Emily Rodriguez',
-            'location' => 'Palo Alto, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' =>
-                'The personalized herbal medicine program has been life-changing for my digestive issues. The doctors took time to understand my constitution and created a perfect treatment plan for me.',
-            'treatment' => 'Herbal Medicine',
-        ],
-        [
-            'name' => 'David Thompson',
-            'location' => 'San Jose, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' =>
-                'After struggling with chronic pain for years, the Abhyanga massage therapy has given me my life back. The combination of therapeutic oils and expert technique is truly healing.',
-            'treatment' => 'Abhyanga Massage',
-        ],
-        [
-            'name' => 'Lisa Park',
-            'location' => 'Mountain View, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' =>
-                'The consultation was incredibly thorough and insightful. Learning about my dosha and getting a personalized wellness plan has helped me make better choices for my health every day.',
-            'treatment' => 'Ayurvedic Consultation',
-            'isVideo' => true,
-            'videoThumbnail' =>
-                'https://images.unsplash.com/photo-1730701878011-a423ec61c328?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-        ],
-        [
-            'name' => 'James Wilson',
-            'location' => 'Fremont, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' =>
-                'The yoga and meditation classes perfectly complement the treatments. The instructors understand how to adapt practices for different doshas and health conditions.',
-            'treatment' => 'Yoga & Meditation',
-        ],
-    ];
+        // ... rest of your sample items ...
+    ]);
+} else {
+    // If $testimonials is a collection of models, normalize it to an array of arrays
+    $testimonials = $testimonials->map(function ($t) {
+        if (is_object($t)) {
+            return [
+                'name' => $t->name ?? ($t->author_name ?? 'Anonymous'),
+                'location' => $t->location ?? null,
+                'avatar' => $t->avatar ? (Str::startsWith($t->avatar, ['http://', 'https://']) ? $t->avatar : asset('storage/' . ltrim($t->avatar, '/'))) : null,
+                'rating' => $t->rating ?? null,
+                'text' => $t->text ?? $t->message ?? '',
+                'treatment' => $t->treatment ?? null,
+                'isVideo' => (bool) ($t->is_video ?? false),
+                'videoThumbnail' => $t->video_thumbnail ?? null,
+            ];
+        }
+        return (array) $t;
+    });
+}
 @endphp
 
 <section id="testimonials" class="py-16 lg:py-24 bg-background">
@@ -79,15 +51,15 @@
                     @foreach ($testimonials as $testimonial)
                         <div class="testimonial-item-wrapper p-0  ">
                             @include('components.home.testimonial-card', [
-                                'name' => $testimonial['name'],
-                                'location' => $testimonial['location'],
-                                'avatar' => $testimonial['avatar'],
-                                'rating' => $testimonial['rating'],
-                                'text' => $testimonial['text'],
-                                'treatment' => $testimonial['treatment'] ?? null,
-                                'isVideo' => $testimonial['isVideo'] ?? false,
-                                'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
-                            ])
+        'name' => $testimonial['name'],
+        'location' => $testimonial['location'],
+        'avatar' => $testimonial['avatar'],
+        'rating' => $testimonial['rating'],
+        'text' => $testimonial['text'],
+        'treatment' => $testimonial['treatment'] ?? null,
+        'isVideo' => $testimonial['isVideo'] ?? false,
+        'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
+    ])
                         </div>
                     @endforeach
                 </div>

@@ -29,14 +29,30 @@ class ArticleResource extends Resource
                 Forms\Components\TextInput::make('title')->required()->reactive()
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
                 Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true),
+ Forms\Components\TextInput::make('category')
+                    ->placeholder('e.g. Treatments, Nutrition')
+                    ->hint('Optional category for filters'), Forms\Components\Toggle::make('published')->default(true),
+ ])->columns(2),
+Section::make(' ')->schema([
                 Forms\Components\Textarea::make('excerpt')->rows(3),
                 Forms\Components\RichEditor::make('content')->nullable(),
                 Forms\Components\FileUpload::make('image')->image()->directory('articles')->disk('public')->nullable(),
-                Forms\Components\TextInput::make('read_time')->numeric()->label('Read time (min)'),
-                Forms\Components\Toggle::make('published')->default(true),
-                Forms\Components\DateTimePicker::make('published_at')->label('Publish date'),
-            ]),
-        ]);
+ ])->columns(1),
+Section::make('Author & Meta')->schema([
+                Forms\Components\TextInput::make('author_name')->label('Author name')->nullable(),
+                Forms\Components\FileUpload::make('author_avatar')
+                    ->image()
+                    ->directory('authors')
+                    ->disk('public')
+                    ->nullable()
+                    ->label('Author avatar'),
+                Forms\Components\Textarea::make('author_bio')->rows(2)->label('Author bio')->nullable(),
+                Forms\Components\Textarea::make('author_note')->rows(2)->label('Author note')->nullable(),
+                Forms\Components\TextInput::make('read_time')->numeric()->label('Read time (min)')->nullable(),
+                Forms\Components\DateTimePicker::make('published_at')->label('Publish date')->nullable(),
+
+            ])->columns(2),
+        ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -44,10 +60,21 @@ class ArticleResource extends Resource
         return $table->columns([
             Tables\Columns\ImageColumn::make('image')->rounded()->label('Thumb'),
             Tables\Columns\TextColumn::make('title')->searchable()->wrap(),
+Tables\Columns\TextColumn::make('category')->sortable()->searchable(),
             Tables\Columns\TextColumn::make('excerpt')->limit(60),
             Tables\Columns\BooleanColumn::make('published'),
             Tables\Columns\TextColumn::make('published_at')->dateTime(),
             Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
+        ])->filters([
+            Tables\Filters\SelectFilter::make('category')
+                ->options(fn () => Article::query()
+                    ->pluck('category')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->mapWithKeys(fn($v) => [$v => $v])
+                    ->toArray()),
+            Tables\Filters\TrashedFilter::make(),
         ])->actions([EditAction::make()])
           ->bulkActions([DeleteBulkAction::make()]);
     }

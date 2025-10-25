@@ -19,6 +19,9 @@ class Article extends Model
         'read_time',
         'published',
         'published_at',
+        'category', // added
+        'author_name', // added
+        'author_avatar',
     ];
 
     protected $casts = [

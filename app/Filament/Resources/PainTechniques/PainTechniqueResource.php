@@ -26,23 +26,30 @@ class PainTechniqueResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
+
             Section::make('Pain Technique Details')->schema([
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
                 Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true),
-                Forms\Components\Textarea::make('description')->rows(3),
-                Forms\Components\RichEditor::make('more_info')->nullable(),
+            ])->columns(2),
+             Section::make(' ')->schema([
                 Forms\Components\FileUpload::make('image')->image()->directory('pain-techniques')->disk('public'),
-                Forms\Components\Repeater::make('benefits')
-                    ->schema([
-                        Forms\Components\TextInput::make('value')->label('Benefit'),
-                    ])
-                    ->createItemButtonLabel('Add benefit'),
+                Forms\Components\RichEditor::make('more_info')->nullable(),
+                Forms\Components\Textarea::make('description') ,  Forms\Components\TagsInput::make('benefits')
+    ->label('Benefits')
+    ->placeholder('Add a benefit and press Enter')
+          // cap at 5
+    ->required(false)
+    ->reactive()
+    ->columnSpan('full'),
+            ])->columns(1),
+            Section::make(' ')->schema([
+
                 Forms\Components\TextInput::make('duration')->placeholder('e.g. 30–60 min'),
-                Forms\Components\TextInput::make('price')->numeric(),
-                Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4),
+                Forms\Components\TextInput::make('price')->numeric()->nullable(),
+                Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)                ->nullable(),
                 Forms\Components\Select::make('category')
                     ->options([
                         'massage' => 'Massage',
@@ -53,8 +60,8 @@ class PainTechniqueResource extends Resource
                     ->nullable(),
                 Forms\Components\Toggle::make('featured'),
                 Forms\Components\Toggle::make('available')->default(true),
-            ]),
-        ]);
+           ])->columns(2),
+        ])->columns(1);
     }
 
     public static function table(Tables\Table $table): Tables\Table

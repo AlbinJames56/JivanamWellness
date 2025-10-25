@@ -1,77 +1,41 @@
 @php
-    $clinics = [
-        [
-            'name' => 'Downtown Wellness Center',
-            'address' => '123 Healing Lane',
-            'city' => 'San Francisco',
-            'hours' => 'Mon-Fri: 8AM-7PM, Sat: 9AM-5PM',
-            'phone' => '(555) 123-4567',
-            'image' => 'https://images.unsplash.com/photo-1730701878011-a423ec61c328?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => true,
-            'specialties' => ['Panchakarma', 'Consultation', 'Herbal Medicine'],
-        ],
-        [
-            'name' => "Nature's Balance Clinic",
-            'address' => '456 Serenity Ave',
-            'city' => 'Berkeley',
-            'hours' => 'Tue-Sat: 9AM-6PM',
-            'phone' => '(555) 234-5678',
-            'image' => 'https://images.unsplash.com/photo-1667199021925-5778681d0406?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => true,
-            'specialties' => ['Massage Therapy', 'Yoga', 'Meditation'],
-        ],
-        [
-            'name' => 'Holistic Healing Hub',
-            'address' => '789 Wellness Way',
-            'city' => 'Palo Alto',
-            'hours' => 'Mon-Thu: 10AM-8PM, Fri-Sun: 9AM-6PM',
-            'phone' => '(555) 345-6789',
-            'image' => 'https://images.unsplash.com/photo-1757689314932-bec6e9c39e51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => false,
-            'specialties' => ['Shirodhara', 'Detox Programs', 'Nutrition'],
-        ],
-        [
-            'name' => 'Ancient Wisdom Center',
-            'address' => '321 Harmony Street',
-            'city' => 'San Jose',
-            'hours' => 'Daily: 8AM-8PM',
-            'phone' => '(555) 456-7890',
-            'image' => 'https://images.unsplash.com/photo-1589548234057-881a5d872453?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => true,
-            'specialties' => ['Traditional Treatments', 'Workshops', 'Retreats'],
-        ],
-        [
-            'name' => 'Peaceful Mind Clinic',
-            'address' => '654 Tranquil Blvd',
-            'city' => 'San Francisco',
-            'hours' => 'Mon-Fri: 9AM-6PM',
-            'phone' => '(555) 567-8901',
-            'image' => 'https://images.unsplash.com/photo-1736748580995-1d5faa88ce4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => true,
-            'specialties' => ['Mental Health', 'Stress Relief', 'Sleep Disorders'],
-        ],
-        [
-            'name' => 'Vitality Restoration Spa',
-            'address' => '987 Renewal Road',
-            'city' => 'Berkeley',
-            'hours' => 'Wed-Sun: 10AM-7PM',
-            'phone' => '(555) 678-9012',
-            'image' => 'https://images.unsplash.com/photo-1730701878011-a423ec61c328?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-            'isOpen' => false,
-            'specialties' => ['Rejuvenation', 'Anti-aging', 'Beauty Treatments'],
-        ]
-    ];
+// Use clinics passed from controller, fallback to your sample if empty
+$clinics = $clinics ?? collect();
 
-    $cities = array_unique(array_merge(['all'], array_map(fn($c) => $c['city'], $clinics)));
-    $selectedCity = request()->get('city', 'all');
-    $showOpenOnly = request()->get('open', false);
+if ($clinics instanceof \Illuminate\Support\Collection) {
+    // map models to arrays for backward compatibility
+    $clinics = $clinics->map(function ($c) {
+        if (is_object($c)) {
+            return [
+                'name' => $c->name ?? 'Clinic',
+                'address' => $c->address ?? '',
+                'city' => $c->city ?? '',
+                'hours' => $c->hours ?? '',
+                'phone' => $c->phone ?? '',
+                'image' => $c->image ? (Str::startsWith($c->image, ['http://', 'https://']) ? $c->image : asset('storage/' . ltrim($c->image, '/'))) : null,
+                'isOpen' => (bool) ($c->is_open ?? $c->isOpen ?? false),
+                'specialties' => $c->specialties ?? [],
+            ];
+        }
+        return (array) $c;
+    })->all();
+} elseif (is_array($clinics)) {
+    // keep as is
+} else {
+    $clinics = [];
+}
 
-    $filteredClinics = array_filter($clinics, function ($clinic) use ($selectedCity, $showOpenOnly) {
-        $cityMatch = $selectedCity === 'all' || $clinic['city'] === $selectedCity;
-        $openMatch = !$showOpenOnly || $clinic['isOpen'];
-        return $cityMatch && $openMatch;
-    });
+$cities = array_unique(array_merge(['all'], array_map(fn($c) => $c['city'] ?? '', $clinics)));
+$selectedCity = request()->get('city', 'all');
+$showOpenOnly = request()->get('open', false);
+
+$filteredClinics = array_filter($clinics, function ($clinic) use ($selectedCity, $showOpenOnly) {
+    $cityMatch = $selectedCity === 'all' || ($clinic['city'] ?? '') === $selectedCity;
+    $openMatch = !$showOpenOnly || ($clinic['isOpen'] ?? false);
+    return $cityMatch && $openMatch;
+});
 @endphp
+
 
 <section id="clinics" class="py-16 lg:py-24 bg-muted/20">
     <div class="max-w-[1100px] mx-auto px-5">
@@ -106,15 +70,15 @@
         <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($filteredClinics as $clinic)
                 @include('components.home.clinic-card', [
-                    'name' => $clinic['name'],
-                    'address' => $clinic['address'],
-                    'city' => $clinic['city'],
-                    'hours' => $clinic['hours'],
-                    'phone' => $clinic['phone'],
-                    'image' => $clinic['image'],
-                    'isOpen' => $clinic['isOpen'],
-                    'specialties' => $clinic['specialties'],
-                ])
+        'name' => $clinic['name'],
+        'address' => $clinic['address'],
+        'city' => $clinic['city'],
+        'hours' => $clinic['hours'],
+        'phone' => $clinic['phone'],
+        'image' => $clinic['image'],
+        'isOpen' => $clinic['isOpen'],
+        'specialties' => $clinic['specialties'],
+    ])
             @empty
                 <div class="text-center py-12 col-span-full">
                     <p class="text-muted-foreground">No clinics found matching your criteria.</p>

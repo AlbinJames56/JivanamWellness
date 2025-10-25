@@ -22,4 +22,15 @@ class PainTechniqueController extends Controller
 
         return view('pages.pain-management', compact('techniques', 'articles'));
     }
+    public function show($slug)
+    {
+        $treatment = PainTechnique::where('slug', $slug)->firstOrFail();
+
+        // optionally load related items
+        $relatedTestimonials = $treatment->testimonials ?? collect();
+        return view(
+            'components.painManagement.show',
+            compact('treatment', 'relatedTestimonials')
+        );
+    }
 }

@@ -38,32 +38,32 @@
             ],
         ];
 
-        $team = [
-            [
-                'name' => 'Dr. Rajesh Patel',
-                'title' => 'Chief Ayurvedic Physician',
-                'specialization' => 'Panchakarma & Pain Management',
-                'experience' => '20+ years',
-                'image' =>
-                    'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
-            ],
-            [
-                'name' => 'Dr. Priya Sharma',
-                'title' => 'Senior Ayurvedic Consultant',
-                'specialization' => "Women's Health & Wellness",
-                'experience' => '15+ years',
-                'image' =>
-                    'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
-            ],
-            [
-                'name' => 'Dr. Arjun Kumar',
-                'title' => 'Ayurvedic Specialist',
-                'specialization' => 'Digestive Health & Detox',
-                'experience' => '12+ years',
-                'image' =>
-                    'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
-            ],
-        ];
+        // $team = [
+        //     [
+        //         'name' => 'Dr. Rajesh Patel',
+        //         'title' => 'Chief Ayurvedic Physician',
+        //         'specialization' => 'Panchakarma & Pain Management',
+        //         'experience' => '20+ years',
+        //         'image' =>
+        //             'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
+        //     ],
+        //     [
+        //         'name' => 'Dr. Priya Sharma',
+        //         'title' => 'Senior Ayurvedic Consultant',
+        //         'specialization' => "Women's Health & Wellness",
+        //         'experience' => '15+ years',
+        //         'image' =>
+        //             'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
+        //     ],
+        //     [
+        //         'name' => 'Dr. Arjun Kumar',
+        //         'title' => 'Ayurvedic Specialist',
+        //         'specialization' => 'Digestive Health & Detox',
+        //         'experience' => '12+ years',
+        //         'image' =>
+        //             'https://images.unsplash.com/photo-1756699279701-99e1fd273517?auto=format&fit=crop&w=1080&q=80',
+        //     ],
+        // ];
 
         $certifications = [
             'Certified by All India Institute of Ayurveda',
@@ -103,8 +103,7 @@
                             {{-- calendar svg --}}
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"
-                                    stroke-width="1.5"></rect>
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="1.5"></rect>
                                 <path d="M16 2v4M8 2v4M3 10h18" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round"></path>
                             </svg>
@@ -233,22 +232,44 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    @foreach ($team as $member)
+                    @foreach ($teamMembers as $member)
+                        @php
+                            // model or array fallback
+                            $m = is_object($member) ? $member : (object) $member;
+                            // resolve image URL if file stored on public disk path
+                            $imgUrl = null;
+                            if (!empty($m->image)) {
+                                if (Str::startsWith($m->image, ['http://', 'https://'])) {
+                                    $imgUrl = $m->image;
+                                } else {
+                                    $imgUrl = \Illuminate\Support\Facades\Storage::disk('public')->exists(ltrim($m->image, '/'))
+                                        ? \Illuminate\Support\Facades\Storage::disk('public')->url(ltrim($m->image, '/'))
+                                        : asset('storage/' . ltrim($m->image, '/'));
+                                }
+                            }
+                        @endphp
+
                         <div class="card overflow-hidden hover:shadow-md transition-shadow">
                             <div class="relative">
-                                <img src="{{ $member['image'] }}" alt="{{ $member['name'] }}"
-                                    class="w-full h-64 object-cover">
+                                @if($imgUrl)
+                                    <img src="{{ $imgUrl }}" alt="{{ $m->name }}" class="w-full h-64 object-cover">
+                                @else
+                                    <div
+                                        class="w-full h-64 bg-gradient-to-br from-primary/10 to-muted/10 flex items-center justify-center">
+                                        <div class="text-muted-foreground">No photo</div>
+                                    </div>
+                                @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                             </div>
+
                             <div class="p-6 space-y-3">
                                 <div>
-                                    <h3 class="font-semibold text-foreground">{{ $member['name'] }}</h3>
-                                    <p class="text-sm text-primary">{{ $member['title'] }}</p>
+                                    <h3 class="font-semibold text-foreground">{{ $m->name }}</h3>
+                                    <p class="text-sm text-primary">{{ $m->title }}</p>
                                 </div>
                                 <div class="space-y-2 text-sm text-muted-foreground">
-                                    <div><span class="font-medium">Specialization:</span> {{ $member['specialization'] }}
-                                    </div>
-                                    <div><span class="font-medium">Experience:</span> {{ $member['experience'] }}</div>
+                                    <div><strong>Specialization:</strong> {{ $m->specialization ?? '-' }}</div>
+                                    <div><strong>Experience:</strong> {{ $m->experience ?? '-' }}</div>
                                 </div>
                                 <a href="#booking" class="btn-secondary inline-flex items-center justify-center w-full">
                                     Book Consultation
@@ -274,8 +295,8 @@
                             {{-- check icon --}}
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary flex-shrink-0"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20 6L9 17l-5-5" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round"></path>
+                                <path d="M20 6L9 17l-5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
                             </svg>
                             <span class="text-sm text-foreground">{{ $cert }}</span>
                         </div>
@@ -299,8 +320,7 @@
                         class="  mx-auto grid sm:grid-cols-2 gap-4">
                         @csrf
                         <input name="name" placeholder="Your name" required class="px-4 py-3 rounded-lg border" />
-                        <input name="phone" placeholder="Phone or WhatsApp" required
-                            class="px-4 py-3 rounded-lg border" />
+                        <input name="phone" placeholder="Phone or WhatsApp" required class="px-4 py-3 rounded-lg border" />
                         <input name="email" type="email" placeholder="Email (optional)"
                             class="px-4 py-3 rounded-lg sm:col-span-2 border" />
                         <textarea name="notes" placeholder="Tell us briefly about your concern (optional)"
@@ -309,10 +329,9 @@
                             <button type="submit"
                                 class="btn-primary w-1/3 sm:col-span-2 inline-flex items-center justify-center gap-2border">
                                 {{-- calendar svg --}}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"
-                                        stroke-width="1.5"></rect>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="1.5"></rect>
                                     <path d="M16 2v4M8 2v4M3 10h18" stroke-width="1.5" stroke-linecap="round"
                                         stroke-linejoin="round"></path>
                                 </svg>
