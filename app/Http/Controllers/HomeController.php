@@ -26,7 +26,7 @@ class HomeController extends Controller
         }
 
         try {
-            $clinics = Clinic::query()
+            $clinics = Clinics::query()
                 ->orderBy('city')
                 ->limit(9)
                 ->get();

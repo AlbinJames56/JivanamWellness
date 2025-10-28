@@ -111,7 +111,10 @@
                         </ul>
 
                         <div class="mt-4">
-                            <a href="#booking" class="w-full btn-primary block text-center">Book a Consultation</a>
+                            <button data-booking data-treatment="{{ optional($treatment)->slug ?? '' }}"
+
+
+                                class="w-full btn-primary block text-center">Book a Consultation</button>
                             <a href="mailto:info@example.com" class="w-full btn-secondary block text-center mt-3">Request
                                 Info</a>
                         </div>
@@ -131,7 +134,7 @@
 
             {{-- Booking anchor --}}
             <div id="booking" class="mx-auto mt-12 p-6 bg-card rounded-2xl border border-border">
-                <x-contact.BookFreeConsultation />
+                <x-contact.BookFreeConsultation :treatment="$treatment" />
             </div>
         </div>
     </div>

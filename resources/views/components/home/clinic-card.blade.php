@@ -7,15 +7,19 @@
     'image' => '',
     'isOpen' => false,
     'specialties' => [],
+    'location_link' => '',
 ])
 
 @php
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-// normalize specialties (same as before)
+/**
+ * Normalize specialties into a simple array of strings.
+ * Accepts array, JSON string, objects, or nested arrays.
+ */
 $specialtiesRaw = $specialties ?? [];
-if (is_string($specialtiesRaw) && json_decode($specialtiesRaw, true) !== null) {
+if (is_string($specialtiesRaw) && @json_decode($specialtiesRaw, true) !== null) {
     $specialtiesRaw = json_decode($specialtiesRaw, true);
 }
 $specialties = collect($specialtiesRaw)->map(function ($item) {
@@ -24,6 +28,7 @@ $specialties = collect($specialtiesRaw)->map(function ($item) {
             return (string) $item['value'];
         if (array_key_exists('specialty', $item))
             return (string) $item['specialty'];
+        // pick first scalar value
         foreach ($item as $v)
             if (is_scalar($v))
                 return (string) $v;
@@ -39,36 +44,46 @@ $specialties = collect($specialtiesRaw)->map(function ($item) {
     return is_scalar($item) ? (string) $item : null;
 })->filter()->values()->all();
 
-// Resolve the image URL safely:
+/**
+ * Resolve an image URL safely:
+ * - If absolute URL -> use it
+ * - If stored on public disk -> use Storage::disk('public')->url(...)
+ * - If points to public path -> use asset(...)
+ * - Fallback to asset('storage/...')
+ */
 $imgUrl = null;
 if (!empty($image)) {
-    // 1) already absolute URL?
+    // Already absolute?
     if (Str::startsWith($image, ['http://', 'https://'])) {
         $imgUrl = $image;
     } else {
-        // normalize path
         $trimmed = ltrim($image, '/');
 
-        // 2) file exists on public disk (recommended when using Filament FileUpload -> disk('public'))
-        if (Storage::disk('public')->exists($trimmed)) {
-            $imgUrl = Storage::disk('public')->url($trimmed); // -> /storage/clinics/xxx.webp
-        } elseif (file_exists(public_path($trimmed))) {
-            // 3) maybe the saved value already points under public/ (rare)
-            $imgUrl = asset($trimmed);
-        } elseif (file_exists(public_path('storage/' . $trimmed))) {
-            // 4) sometimes files are in public/storage/clinics/...
+        // 1) public disk (recommended when using disk 'public' for uploads)
+        try {
+            if (Storage::disk('public')->exists($trimmed)) {
+                $imgUrl = Storage::disk('public')->url($trimmed); // e.g. /storage/clinics/xx.jpg
+            } elseif (file_exists(public_path($trimmed))) {
+                // 2) path already relative to public/
+                $imgUrl = asset($trimmed);
+            } elseif (file_exists(public_path('storage/' . $trimmed))) {
+                // 3) stored under public/storage/...
+                $imgUrl = asset('storage/' . $trimmed);
+            } else {
+                // 4) fallback to asset('storage/...')
+                $imgUrl = asset('storage/' . $trimmed);
+            }
+        } catch (\Throwable $e) {
+            // Defensive fallback when storage isn't available
             $imgUrl = asset('storage/' . $trimmed);
-        } else {
-            // fallback: try asset('storage/...')
-            $imgUrl = asset('storage/' . $trimmed);
+            \Log::debug("clinic-card: Storage check failed: " . $e->getMessage());
         }
     }
 }
 @endphp
 
-
-<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-    <div class="relative">
+<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
+    <div class="relative flex-shrink-0">
         @if($imgUrl)
             <img src="{{ $imgUrl }}" alt="{{ $name }} clinic"
                  class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -79,49 +94,73 @@ if (!empty($image)) {
         @endif
 
         <div class="absolute top-3 left-3">
-            <span class="badge {{ $isOpen ? 'bg-green-500 text-white' : 'bg-gray-500 text-white' }}">
+            <span class="badge rounded-3xl py-1 px-2 {{ $isOpen ? 'bg-green-500 text-white' : 'bg-gray-500 text-white' }}">
                 {{ $isOpen ? 'Open Now' : 'Closed' }}
             </span>
         </div>
     </div>
 
-    <div class="p-6 space-y-4">
+    <div class="p-6 space-y-4 flex-1 flex flex-col">
         <div class="space-y-3">
             <h3 class="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">{{ $name }}</h3>
 
             <div class="space-y-2 text-sm text-muted-foreground">
                 <div class="flex items-start gap-2">
-                    <svg class="w-4 h-4 mt-0.5 text-primary flex-shrink-0">...</svg> {{-- MapPin icon --}}
-                    <div>
-                        <div>{{ $address }}</div>
-                        <div>{{ $city }}</div>
-                    </div>
+                    <div class="flex items-start gap-2">
+    
+    <div>
+       @if(!empty($location_link))
+        <a href="{{ $location_link }}" target="_blank" class="flex items-start gap-2 underline hover:text-primary">
+            <i class="fa-solid fa-location-dot mt-1"></i>
+            <div>
+                <div>{{ $address }}</div>
+                <div>{{ $city }}</div>
+            </div>
+        </a>
+    @else
+    <div class="flex items-start gap-2">
+        <i class="fa-solid fa-location-dot mt-1"></i>
+        <div>
+            <div>{{ $address }}</div>
+            <div>{{ $city }}</div>
+        </div>
+    </div>
+@endif
+
+    </div>
+</div>
+
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-primary">...</svg> {{-- Clock icon --}}
+                   <i class="fa-solid fa-clock"></i>
                     <span>{{ $hours }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-primary">...</svg> {{-- Phone icon --}}
+                   <i class="fa-solid fa-phone"></i>
                     <span>{{ $phone }}</span>
                 </div>
             </div>
 
-             @if(count($specialties) > 0)
-            <div class="flex flex-wrap gap-2 pt-3">
-                @foreach($specialties as $s)
-                    <span class="inline-block text-xs bg-muted/10 px-3 py-1 rounded-full text-muted-foreground">{{ $s }}</span>
-                @endforeach
-            </div>
-        @endif
+            @if(count($specialties) > 0)
+                <div class="flex flex-wrap gap-2 pt-3">
+                    @foreach($specialties as $s)
+                        <span class="inline-block text-xs bg-muted/10 px-3 py-1 rounded-full text-muted-foreground">{{ $s }}</span>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
-        <div class="flex gap-3 pt-4 border-t border-border">
-            <button class="flex-1 btn-primary">Book Appointment</button>
-            <button class="btn-secondary flex items-center justify-center">
-                <svg class="w-4 h-4">...</svg> {{-- ArrowRight icon --}}
+        {{-- Button pushed to bottom --}}
+        <div class="mt-auto">
+            <button class="w-full btn-primary"
+                data-booking
+                @if(isset($therapy)) data-treatment="{{ $therapy->slug }}"
+                @elseif(isset($t)) data-treatment="{{ $t->slug }}"
+                @elseif(isset($treatment)) data-treatment="{{ $treatment->slug }}"
+                @endif>
+                Book Appointment
             </button>
         </div>
     </div>

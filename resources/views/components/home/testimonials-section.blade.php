@@ -1,38 +1,38 @@
 @php
-// Accept $testimonials passed from controller. Provide fallback sample only if empty.
-$testimonials = $testimonials ?? collect();
+    // Accept $testimonials passed from controller. Provide fallback sample only if empty.
+    $testimonials = $testimonials ?? collect();
 
-if ($testimonials->isEmpty()) {
-    // Fallback array (your existing sample) — keep for local dev
-    $testimonials = collect([
-        [
-            'name' => 'Sarah Johnson',
-            'location' => 'San Francisco, CA',
-            'avatar' => 'https://images.unsplash.com/photo-1494790108755-2616b169b037?w=150&h=150&fit=crop&crop=face',
-            'rating' => 5,
-            'text' => 'The Panchakarma treatment completely transformed my health...',
-            'treatment' => 'Panchakarma Detox',
-        ],
-        // ... rest of your sample items ...
-    ]);
-} else {
-    // If $testimonials is a collection of models, normalize it to an array of arrays
-    $testimonials = $testimonials->map(function ($t) {
-        if (is_object($t)) {
-            return [
-                'name' => $t->name ?? ($t->author_name ?? 'Anonymous'),
-                'location' => $t->location ?? null,
-                'avatar' => $t->avatar ? (Str::startsWith($t->avatar, ['http://', 'https://']) ? $t->avatar : asset('storage/' . ltrim($t->avatar, '/'))) : null,
-                'rating' => $t->rating ?? null,
-                'text' => $t->text ?? $t->message ?? '',
-                'treatment' => $t->treatment ?? null,
-                'isVideo' => (bool) ($t->is_video ?? false),
-                'videoThumbnail' => $t->video_thumbnail ?? null,
-            ];
-        }
-        return (array) $t;
-    });
-}
+    if ($testimonials->isEmpty()) {
+        // Fallback array (your existing sample) — keep for local dev
+        $testimonials = collect([
+            [
+                'name' => 'Sarah Johnson',
+                'location' => 'San Francisco, CA',
+                'avatar' => 'https://images.unsplash.com/photo-1494790108755-2616b169b037?w=150&h=150&fit=crop&crop=face',
+                'rating' => 5,
+                'text' => 'The Panchakarma treatment completely transformed my health...',
+                'treatment' => 'Panchakarma Detox',
+            ],
+            // ... rest of your sample items ...
+        ]);
+    } else {
+        // If $testimonials is a collection of models, normalize it to an array of arrays
+        $testimonials = $testimonials->map(function ($t) {
+            if (is_object($t)) {
+                return [
+                    'name' => $t->name ?? ($t->author_name ?? 'Anonymous'),
+                    'location' => $t->location ?? null,
+                    'avatar' => $t->avatar ? (Str::startsWith($t->avatar, ['http://', 'https://']) ? $t->avatar : asset('storage/' . ltrim($t->avatar, '/'))) : null,
+                    'rating' => $t->rating ?? null,
+                    'text' => $t->text ?? $t->message ?? '',
+                    'treatment' => $t->treatment ?? null,
+                    'isVideo' => (bool) ($t->is_video ?? false),
+                    'videoThumbnail' => $t->video_thumbnail ?? null,
+                ];
+            }
+            return (array) $t;
+        });
+    }
 @endphp
 
 <section id="testimonials" class="py-16 lg:py-24 bg-background">
@@ -51,20 +51,20 @@ if ($testimonials->isEmpty()) {
                     @foreach ($testimonials as $testimonial)
                         <div class="testimonial-item-wrapper p-0  ">
                             @include('components.home.testimonial-card', [
-        'name' => $testimonial['name'],
-        'location' => $testimonial['location'],
-        'avatar' => $testimonial['avatar'],
-        'rating' => $testimonial['rating'],
-        'text' => $testimonial['text'],
-        'treatment' => $testimonial['treatment'] ?? null,
-        'isVideo' => $testimonial['isVideo'] ?? false,
-        'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
-    ])
-                        </div>
+                                'name' => $testimonial['name'],
+                                'location' => $testimonial['location'],
+                                'avatar' => $testimonial['avatar'],
+                                'rating' => $testimonial['rating'],
+                                'text' => $testimonial['text'],
+                                'treatment' => $testimonial['treatment'] ?? null,
+                                'isVideo' => $testimonial['isVideo'] ?? false,
+                                'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
+                            ])
+                                    </div>
                     @endforeach
                 </div>
             </div>
-
+ 
             <!-- Navigation -->
             <div class="flex items-center justify-center gap-4 mt-8">
                 <button id="testimonials-prev" class="rounded-full border border-border hover:bg-primary/10 p-2">
@@ -73,7 +73,7 @@ if ($testimonials->isEmpty()) {
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+             </button>
 
                 <div id="testimonials-dots" class="flex gap-2"></div>
 
@@ -82,7 +82,7 @@ if ($testimonials->isEmpty()) {
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
+                       </svg>
                 </button>
             </div>
         </div>
@@ -187,7 +187,7 @@ if ($testimonials->isEmpty()) {
             // Keep currentPage in sync while user scrolls (update on scroll)
             let scrollDebounce = null;
             track.addEventListener('scroll', () => {
-                clearTimeout(scrollDebounce);
+             clearTimeout(scrollDebounce);
                 scrollDebounce = setTimeout(() => {
                     const containerWidth = track.parentElement.clientWidth || window.innerWidth;
                     const scrolled = track.scrollLeft;
@@ -196,7 +196,7 @@ if ($testimonials->isEmpty()) {
                         currentPage = page;
                         updateDots();
                     }
-                }, 80);
+                         }, 80);
             });
 
             // Recalculate sizes on resize (debounced)
@@ -205,7 +205,7 @@ if ($testimonials->isEmpty()) {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
                     applyItemSizing();
-                }, 120);
+       }, 120);
             });
 
             // Initialize

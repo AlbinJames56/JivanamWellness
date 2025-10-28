@@ -19,8 +19,7 @@ class Clinics extends Model
         'image',
         'is_open',
         'specialties',
-        'latitude',
-        'longitude',
+        'location_link',
     ];
 
     protected $casts = [

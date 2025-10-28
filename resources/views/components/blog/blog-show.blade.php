@@ -11,7 +11,7 @@
             {{-- HERO Section --}}
             <header class="relative rounded-3xl overflow-hidden shadow-lg mb-8">
                 <div class="relative h-72 md:h-96 lg:h-[520px]">
-                    @if($article?->image)z
+                    @if($article?->image)
                         <img src="{{ Storage::disk('public')->url($article->image) }}" alt="{{ $article->title }}"
                             class="w-full h-full object-cover transform transition-transform duration-700 ease-out will-change-transform"
                             style="transform-origin: center;" id="hero-image">
@@ -92,9 +92,17 @@
                                 <h4 class="text-lg font-semibold">Ready to start your healing journey?</h4>
                                 <p class="text-sm opacity-90">Book a consultation and get a personalised Ayurvedic plan.</p>
                             </div>
-                            <div class="ml-auto">
-                                <a href="#booking" class="btn-white px-4 py-2 rounded-lg shadow">Book Now</a>
-                            </div>
+                           <div class="ml-auto"
+     data-booking
+     @if(isset($therapy))
+         data-treatment="{{ $therapy->slug }}"
+     @elseif(isset($article) && isset($article->therapy))
+         data-treatment="{{ $article->therapy->slug }}"
+     @endif
+>
+    <a href="#booking" class="btn-white px-4 py-2 rounded-lg shadow">Book Now</a>
+</div>
+
                         </div>
                     </div>
                 </main>

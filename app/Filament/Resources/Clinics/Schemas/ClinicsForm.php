@@ -27,6 +27,11 @@ class ClinicsForm
                             ->maxLength(255)
                             ->hint('Optional, auto generated from name')
                             ->nullable(),
+                        TextInput::make('phone')
+                            ->label('Phone')
+                            ->tel()
+                            ->nullable()
+                            ->maxLength(40),
 
                         TextInput::make('city')->required(),
 
@@ -35,7 +40,7 @@ class ClinicsForm
                             ->nullable(),
                     ])
                     ->columns(2),
-                Section::make('Clinic Details')
+                Section::make('Address & Media')
                     ->schema([
                         Textarea::make('address')
                             ->rows(3)
@@ -45,7 +50,8 @@ class ClinicsForm
                             ->image()
                             ->disk('public')
                             ->directory('clinics')
-                            ->nullable(),
+                            ->nullable()
+                            ->hint('Upload a clinic image (recommended size: 1200×800)'),
                     ])
                     ->columns(1),
                 // Section 2: specialties, toggles and location
@@ -60,15 +66,11 @@ class ClinicsForm
                             ->createItemButtonLabel('Add specialty')
                             ->columnSpan('full'),
 
-                        TextInput::make('latitude')
-                            ->numeric()
+                        TextInput::make('location_link')
+                            ->label('Location link (Google Maps / directions)')
+                            ->url()
                             ->nullable()
-                            ->hint('Optional, decimal degrees'),
-
-                        TextInput::make('longitude')
-                            ->numeric()
-                            ->nullable()
-                            ->hint('Optional, decimal degrees'),
+                            ->hint('Paste a Google Maps or directions URL here'), 
                         Toggle::make('is_open')
                             ->label('Open now')
                             ->inline(false),

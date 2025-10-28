@@ -217,10 +217,16 @@
                 <p class="text-muted-foreground text-lg   mx-auto">
                     Book your personalized Ayurvedic pain assessment today and discover holistic healing.
                 </p>
-                <a href="#" class="btn-primary inline-flex items-center justify-center">
-                    @include('components.icon', ['name' => 'calendar', 'class' => 'w-4 h-4 mr-2'])
-                    Book Appointment
-                </a>
+             <button class="btn-primary inline-flex items-center justify-center"
+                data-booking
+                @if(isset($therapy)) data-treatment="{{ $therapy->slug }}"
+                @elseif(isset($t)) data-treatment="{{ $t->slug }}"
+                @elseif(isset($treatment)) data-treatment="{{ $treatment->slug }}"
+                @endif>
+                @include('components.icon', ['name' => 'calendar', 'class' => 'w-4 h-4 mr-2'])
+                Book Appointment
+            </button>
+
             </div>
         </section>
     </div>

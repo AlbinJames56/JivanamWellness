@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Str;
+
     $blogPosts = $blogPosts ?? collect();
 
     if ($blogPosts instanceof \Illuminate\Support\Collection) {
@@ -29,11 +31,11 @@
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
             <div class="space-y-6">
-                <div class="flex ">
+                <div class="flex items-center gap-4">
                     <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Wellness Insights & Tips</h2>
-                    <div class=" btn-secondary ">
-                        <a href="{{ url('/blog') }}"
-                            class=" text-primary hover:bg-primary/10 group w-40 inline-flex items-center gap-2 ">
+
+                    <div>
+                        <a href="{{ url('/blog') }}" class="btn-secondary inline-flex items-center gap-2 px-4 py-2">
                             View All Articles
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"
@@ -44,16 +46,21 @@
                         </a>
                     </div>
                 </div>
-                <p class="text-lg text-muted-foreground  leading-relaxed">
+
+                <p class="text-lg text-muted-foreground leading-relaxed">
                     Stay informed with the latest in Ayurvedic wisdom, practical health tips, and insights from our
                     experienced practitioners.
                 </p>
             </div>
-
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach ($blogPosts as $post)
+                @php
+                    // Build a post URL. If you have a named route change this accordingly.
+                    $postUrl = !empty($post['slug']) ? url('/blog/' . ltrim($post['slug'], '/')) : url('/blog');
+                @endphp
+
                 @include('components.home.blog-card', [
                     'title' => $post['title'],
                     'excerpt' => $post['excerpt'],
@@ -63,9 +70,9 @@
                     'readTime' => $post['readTime'],
                     'author' => $post['author'],
                     'authorAvatar' => $post['authorAvatar'],
+                    'postUrl' => $postUrl,
                 ])
             @endforeach
         </div>
     </div>
 </section>
-
