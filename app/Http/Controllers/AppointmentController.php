@@ -16,6 +16,8 @@ class AppointmentController extends Controller
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
             'notes' => 'nullable|string|max:2000',
+            'preferred' => 'nullable|date', // optional date/time field
+            'therapy_slug' => 'nullable|string', // added therapy field
         ]);
 
         // If you have an Appointment model & table, save to DB
@@ -39,6 +41,18 @@ class AppointmentController extends Controller
             }
 
             return redirect()->back();
+        }
+        if (
+            !empty($data['therapy_slug']) &&
+            class_exists(\App\Models\Therapy::class)
+        ) {
+            $therapy = \App\Models\Therapy::where(
+                'slug',
+                $data['therapy_slug']
+            )->first();
+            if ($therapy) {
+                $data['therapy_id'] = $therapy->id;
+            }
         }
 
         // Otherwise fallback: save to session (temporary) and log

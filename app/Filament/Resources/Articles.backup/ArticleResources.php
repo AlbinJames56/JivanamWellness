@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Models\Article;
+use Filament\Resources\Resource;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Tables;
+use Filament\Forms;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+
+class ArticleResources extends Resource
+{
+    protected static ?string $model = Article::class;
+    protected static ?string $navigationLabel = 'Articles';
+    protected static ?int $navigationSort = 4;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->schema([
+            Section::make('Article Details')->schema([
+                Forms\Components\TextInput::make('title')->required()->reactive()
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
+                Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true),
+                Forms\Components\Textarea::make('excerpt')->rows(3),
+                Forms\Components\RichEditor::make('content')->nullable(),
+                Forms\Components\FileUpload::make('image')->image()->directory('articles')->disk('public')->nullable(),
+                Forms\Components\TextInput::make('read_time')->numeric()->label('Read time (min)'),
+                Forms\Components\Toggle::make('published')->default(true),
+                Forms\Components\DateTimePicker::make('published_at')->label('Publish date'),
+            ]),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table->columns([
+            Tables\Columns\ImageColumn::make('image')->rounded()->label('Thumb'),
+            Tables\Columns\TextColumn::make('title')->searchable()->wrap(),
+            Tables\Columns\TextColumn::make('excerpt')->limit(60),
+            Tables\Columns\BooleanColumn::make('published'),
+            Tables\Columns\TextColumn::make('published_at')->dateTime(),
+            Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
+        ])->actions([EditAction::make()])
+          ->bulkActions([DeleteBulkAction::make()]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => \App\Filament\Resources\Articles\Pages\ListArticles::route('/'),
+            'create' => \App\Filament\Resources\Articles\Pages\CreateArticle::route('/create'),
+            'edit' => \App\Filament\Resources\Articles\Pages\EditArticle::route('/{record}/edit'),
+        ];
+    }
+}

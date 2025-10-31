@@ -1,12 +1,23 @@
-{{-- resources/views/pages/pain-management.blade.php --}}
+{{-- resources\views\pages\pain-management.blade.php --}}
 @extends('layouts.app')
+@php
+
+    // If controller didn't pass $articles, try to load 3 latest published.
+    if (!isset($articles)) {
+        $articles = \App\Models\Article::query()
+            ->where('published', true)
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get();
+    }
+@endphp
 
 @section('content')
     <div class="min-h-screen bg-background">
 
         {{-- Hero Section --}}
         <section class="relative py-20 lg:py-28 bg-gradient-to-br from-muted/20 to-background">
-            <div class="max-w-[1100px] mx-auto px-5 text-center space-y-6">
+            <div class="  mx-auto px-5 text-center space-y-6">
                 <div class="max-w-4xl mx-auto space-y-6">
                     <span class="inline-block badge-accent">Natural Pain Relief</span>
 
@@ -15,7 +26,8 @@
                     </h1>
 
                     <div class="space-y-4 text-lg text-muted-foreground leading-relaxed   mx-auto">
-                        <p>Experience gentle, effective pain management through time-tested Ayurvedic therapies. Our holistic approach addresses root causes, providing sustainable relief without harsh side
+                        <p>Experience gentle, effective pain management through time-tested Ayurvedic therapies. Our
+                            holistic approach addresses root causes, providing sustainable relief without harsh side
                             effects.</p>
                     </div>
 
@@ -134,6 +146,23 @@
                 </div>
             </div>
         </section>
+        <section class="py-16 lg:py-24">
+            <div class="max-w-[1100px] mx-auto px-5">
+                <div class="text-center space-y-4 mb-12">
+                    <h2 class="text-3xl lg:text-4xl font-semibold">Our Pain Management Techniques</h2>
+                    <p class="text-lg text-muted-foreground  mx-auto">Comprehensive therapies designed to address
+                        different types of pain and underlying causes</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @forelse($techniques as $t)
+                        <x-painManagement.technique-card :technique="$t" variant="more" />
+                    @empty
+                        <div class="col-span-full text-center text-muted-foreground">No techniques available yet.</div>
+                    @endforelse
+                </div>
+            </div>
+        </section>
 
         {{-- Blog Section --}}
         <section class="py-16 lg:py-24">
@@ -147,44 +176,35 @@
                     </p>
                 </div>
 
-                @php
-                    $blogs = [
-                        [
-                            'title' => 'Understanding Chronic Pain: An Ayurvedic Perspective',
-                            'excerpt' =>
-                                'Discover how Ayurveda views chronic pain differently and why this approach leads to more effective, lasting relief.',
-                            'readTime' => '5 min read',
-                        ],
-                        [
-                            'title' => '5 Daily Habits to Prevent Back Pain Naturally',
-                            'excerpt' =>
-                                'Simple lifestyle changes and exercises that can significantly reduce your risk of developing chronic back pain.',
-                            'readTime' => '3 min read',
-                        ],
-                        [
-                            'title' => 'The Mind-Body Connection in Pain Management',
-                            'excerpt' =>
-                                'How stress and emotions contribute to physical pain, and effective techniques to break this cycle.',
-                            'readTime' => '4 min read',
-                        ],
-                    ];
-                @endphp
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    @foreach ($blogs as $blog)
-                        <div class="card hover:shadow-md transition-shadow cursor-pointer group">
+                    @foreach ($articles as $article)
+                        <a href="{{ route('articles.show', $article->slug) }}"
+                            class="card hover:shadow-md transition-shadow group">
                             <div class="space-y-4">
+                                @if($article->image)
+                                    <img src="{{ asset('storage/' . ltrim($article->image, '/')) }}" alt="{{ $article->title }}"
+                                        class="w-full h-44 object-cover rounded-lg">
+                                @endif
+
                                 <h3 class="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                    {{ $blog['title'] }}</h3>
-                                <p class="text-sm text-muted-foreground leading-relaxed">{{ $blog['excerpt'] }}</p>
+                                    {{ $article->title }}
+                                </h3>
+
+                                <p class="text-sm text-muted-foreground leading-relaxed">
+                                    {{ $article->excerpt ?? Str::limit(strip_tags($article->content), 120) }}
+                                </p>
+
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs text-muted-foreground">{{ $blog['readTime'] }}</span>
+                                    <span class="text-xs text-muted-foreground">
+                                        {{ $article->read_time ?? $article->estimated_read_time }} min read
+                                    </span>
                                     @include('components.icon', ['name' => 'arrow-right', 'class' => 'w-4 h-4 text-primary group-hover:translate-x-1 transition-transform'])
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
+
             </div>
         </section>
 
@@ -197,10 +217,16 @@
                 <p class="text-muted-foreground text-lg   mx-auto">
                     Book your personalized Ayurvedic pain assessment today and discover holistic healing.
                 </p>
-                <a href="#" class="btn-primary inline-flex items-center justify-center">
-                    @include('components.icon', ['name' => 'calendar', 'class' => 'w-4 h-4 mr-2'])
-                    Book Appointment
-                </a>
+             <button class="btn-primary inline-flex items-center justify-center"
+                data-booking
+                @if(isset($therapy)) data-treatment="{{ $therapy->slug }}"
+                @elseif(isset($t)) data-treatment="{{ $t->slug }}"
+                @elseif(isset($treatment)) data-treatment="{{ $treatment->slug }}"
+                @endif>
+                @include('components.icon', ['name' => 'calendar', 'class' => 'w-4 h-4 mr-2'])
+                Book Appointment
+            </button>
+
             </div>
         </section>
     </div>
