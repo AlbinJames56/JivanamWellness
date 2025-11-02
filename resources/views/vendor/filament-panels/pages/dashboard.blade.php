@@ -16,7 +16,7 @@
             display: none !important;
         }
 
-        /* expand page content area so layout looks like the example */
+        /* expand page content area */
         .fi-dashboard-page .filament-page {
             padding-top: 2rem;
             padding-left: 0.75rem;
@@ -55,7 +55,9 @@
             text-decoration: none;
             box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
             transition: transform .08s ease, box-shadow .08s ease;
-            min-height: 52px;
+            min-height: 56px;
+            gap: .5rem;
+            font-size: 1rem;
         }
 
         .jv-dashboard-button:hover {
@@ -87,7 +89,6 @@
             background: #059669;
         }
 
-        /* center container width like your example */
         .jv-container {
             max-width: 1100px;
             margin-left: auto;
@@ -95,47 +96,134 @@
             padding: 0 1rem;
         }
     </style>
+
     @php
-        // Use the correct resource FQCN (namespace + class)
-        $articleResourceClass = \App\Filament\Resources\Articles\ArticleResource::class;
+        $panelPath = config('filament.path', 'admin');
 
-        // Try to resolve Filament resource URLs; fall back to a direct panel URL
-        try {
-            $articlesIndexUrl = $articleResourceClass::getUrl('index');
-        } catch (\Throwable $e) {
-            // fallback direct URL (panel path + resource slug)
-            $articlesIndexUrl = url('jivanam-admin/resources/articles') ?? '#';
-        }
+        // canonical resource definitions: label, emoji, candidate class segments (tries in order),
+        // candidate slugs (fallbacks), color
+        $resources = [
+            [
+                'label' => 'Manage Bookings',
+                'emoji' => '📅',
+                'classCandidates' => [
+                    'Appointments\\AppointmentResource',
+                    'Appointments\\AppointmentsResource',
+                ],
+                'slugCandidates' => ['appointments', 'booking', 'bookings'],
+                'color' => 'jv-red', // pick any of jv-gold/jv-green/jv-blue/jv-orange/jv-red/jv-teal
+            ],
 
-        try {
-            $articlesCreateUrl = $articleResourceClass::getUrl('create');
-        } catch (\Throwable $e) {
-            $articlesCreateUrl = url('jivanam-admin/resources/articles/create') ?? '#';
+            [
+                'label' => 'Manage Pain Techniques',
+                'emoji' => '🩺',
+                // try common variants: singular/plural and different folders
+                'classCandidates' => [
+                    'PainTechniques\\PainTechniqueResource',
+                    'PainTechniques\\PainTechniquesResource',
+                    'PainManagements\\PainManagementResource',
+                    'PainManagements\\PainManagementsResource',
+                ],
+                'slugCandidates' => ['pain-techniques', 'pain-technique', 'pain-management', 'pain-managements'],
+                'color' => 'jv-gold',
+            ],
+            [
+                'label' => 'Manage Therapies',
+                'emoji' => '🌿',
+                'classCandidates' => [
+                    'Therapies\\TherapyResource',
+                    'Therapies\\TherapiesResource',
+                ],
+                'slugCandidates' => ['therapies', 'therapy'],
+                'color' => 'jv-green',
+            ],
+            [
+                'label' => 'Manage Articles',
+                'emoji' => '📰',
+                'classCandidates' => [
+                    'Articles\\ArticleResource',
+                    'Articles\\ArticlesResource',
+                ],
+                'slugCandidates' => ['articles', 'article', 'blog'],
+                'color' => 'jv-blue',
+            ],
+            [
+                'label' => 'Manage Clinics',
+                'emoji' => '🏥',
+                'classCandidates' => [
+                    'Clinics\\ClinicResource',
+                    'Clinics\\ClinicsResource',
+                ],
+                'slugCandidates' => ['clinics', 'clinic'],
+                'color' => 'jv-orange',
+            ],
+            [
+                'label' => 'Manage Team Members',
+                'emoji' => '👥',
+                'classCandidates' => [
+                    'TeamMembers\\TeamMemberResource',
+                    'TeamMembers\\TeamMembersResource',
+                ],
+                'slugCandidates' => ['team-members', 'team-member', 'team'],
+                'color' => 'jv-red',
+            ],
+            [
+                'label' => 'Manage Testimonials',
+                'emoji' => '💬',
+                'classCandidates' => [
+                    'Testimonials\\TestimonialResource',
+                    'Testimonials\\TestimonialsResource',
+                ],
+                'slugCandidates' => ['testimonials', 'testimonial'],
+                'color' => 'jv-teal',
+            ],
+        ];
+
+        // helper: try to resolve a resource URL from a set of candidate classsegments or slugs
+        function resolveResourceUrlFromCandidates(array $classCandidates, array $slugCandidates, $panelPath)
+        {
+            foreach ($classCandidates as $seg) {
+                $fqcn = "\\App\\Filament\\Resources\\" . $seg;
+                if (class_exists($fqcn) && method_exists($fqcn, 'getUrl')) {
+                    try {
+                        return $fqcn::getUrl('index');
+                    } catch (\Throwable $e) {
+                        // ignore and continue trying
+                    }
+                }
+            }
+            // fallback: try slug candidates to form a panel URL
+            foreach ($slugCandidates as $slug) {
+                $url = url(trim($panelPath, '/') . '/resources/' . trim($slug, '/'));
+                // we don't have a reliable way to test route existence without making requests,
+                // but returning the URL as fallback is still helpful for the UI.
+                return $url;
+            }
+            return '#';
         }
     @endphp
+
+
     <div class="jv-container">
+        
 
+        <div class="jv-dashboard-grid mt-4">
+            @foreach($resources as $r)
+                @php
+                    $url = resolveResourceUrlFromCandidates(
+                        $r['classCandidates'],
+                        $r['slugCandidates'],
+                        $panelPath
+                    );
+                @endphp
 
-        <div class="jv-dashboard-grid">
-            {{-- Manage Therapies --}}
-            <a href="{{ \App\Filament\Resources\Therapies\TherapyResource::getUrl('index') }}"
-                class="jv-dashboard-button jv-gold">
-                🌿 Manage Therapies
-            </a>
-
-            {{-- Manage Testimonials (create this resource if not present) --}}
-            <a href="{{ \App\Filament\Resources\Testimonials\TestimonialResource::getUrl('index') ?? '#' }}"
-                class="jv-dashboard-button jv-green">
-                💬 Manage Testimonials
-            </a>
-            {{-- Manage Articles --}}
-            <a href="{{ $articlesIndexUrl }}" class="jv-dashboard-button jv-blue" @if($articlesIndexUrl === '#')
-            title="Articles resource not registered" @endif>
-                📰 Manage Articles
-            </a>
-
-
-
+                <a href="{{ $url }}" class="jv-dashboard-button {{ $r['color'] }}" target="_self" rel="noopener noreferrer"
+                    @if($url === '#') title="Resource not available" @endif>
+                    <span style="font-size:1.1rem;">{!! $r['emoji'] !!}</span>
+                    <span>{{ $r['label'] }}</span>
+                </a>
+            @endforeach
         </div>
+
     </div>
 </x-filament-panels::page>

@@ -166,3 +166,8 @@
     border-radius: var(--radius-xl);
     padding: var(--spacing-lg);
 }
+.booking-scroll-area {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}

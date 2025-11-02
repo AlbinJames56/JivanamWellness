@@ -64,7 +64,7 @@ class TherapyController extends Controller
             ->get();
 
         return view(
-            'components.Therapy.therapy-show',
+            'components.therapy.therapy-show',
             compact('therapy', 'relatedTestimonials')
         );
     }

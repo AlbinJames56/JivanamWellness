@@ -27,7 +27,8 @@
                             </div>
 
                             <div class="hidden sm:flex items-center gap-3">
-                                <a href="#booking" class="btn-primary px-4 py-2">Book Now</a>
+                                <button data-booking data-treatment="{{ optional($therapy)->slug ?? optional($treatment)->slug ?? '' }}"
+                                    class="w-full btn-primary block text-center">Book </button>
                             </div>
                         </div>
                     </div>
@@ -100,8 +101,8 @@
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 @foreach($therapy->gallery as $img)
                                     @php
-                                        // if $img is already a URL or absolute path, use it directly
-                                        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
+        // if $img is already a URL or absolute path, use it directly
+        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
                                     @endphp
 
                                     <a href="{{ $src }}" target="_blank" class="block rounded-lg overflow-hidden">
@@ -148,9 +149,15 @@
                             <li><strong>Category:</strong> <span class="ml-2">{{ $therapy->tag ?? '—' }}</span></li>
                             <li><strong>Availability:</strong> <span
                                     class="ml-2">{{ $therapy->available ? 'Available' : 'Contact us' }}</span></li>
-                            <li><strong>Price:</strong> <span
-                                    class="ml-2">{{ $therapy->price ? ($therapy->price_currency ?? 'INR') . ' ' . number_format($therapy->price, 2) : '—' }}</span>
+                        @if(!empty($therapy->price))
+                            <li>
+                                <strong>Price:</strong>
+                                <span class="ml-2">
+                                    {{ ($therapy->price_currency ?? 'INR') . ' ' . number_format((float) $therapy->price, 2) }}
+                                </span>
                             </li>
+                        @endif
+
                         </ul>
 
                         <div class="mt-4">

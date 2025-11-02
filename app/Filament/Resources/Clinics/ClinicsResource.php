@@ -21,7 +21,7 @@ class ClinicsResource extends Resource
     // protected static Have not implemented kind undefined yet. $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'Clinics';
-
+    protected static ?int $navigationSort = 4;
     public static function form(Schema $schema): Schema
     {
         return ClinicsForm::configure($schema);
