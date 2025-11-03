@@ -1,5 +1,21 @@
 @extends('layouts.app')
+<style>
+    .therapy-content {
+        line-height: 1.75;
+        color: inherit;
+        max-width: none;
+    }
 
+    /* Let the rich editor classes do their work */
+    .therapy-content * {
+        all: revert;
+    }
+
+    /* Optional: Add some custom spacing */
+    .therapy-content>*+* {
+        margin-top: 1.25rem;
+    }
+</style>
 @section('content')
     <div class="min-h-screen bg-background text-foreground">
         <div class="max-w-6xl mx-auto px-4 py-12 lg:py-20">
@@ -27,7 +43,8 @@
                             </div>
 
                             <div class="hidden sm:flex items-center gap-3">
-                                <button data-booking data-treatment="{{ optional($therapy)->slug ?? optional($treatment)->slug ?? '' }}"
+                                <button data-booking
+                                    data-treatment="{{ optional($therapy)->slug ?? optional($treatment)->slug ?? '' }}"
                                     class="w-full btn-primary block text-center">Book </button>
                             </div>
                         </div>
@@ -65,10 +82,13 @@
                         </div>
                     </div>
 
-                    {{-- Admin-supplied HTML content --}}
-                    <div class="prose max-w-none prose-lg mt-4">
-                        {!! $therapy->content !!}
+                @if(!empty($safeHtml))
+                    <div class="therapy-content mt-4">
+                        {!! $safeHtml !!}
                     </div>
+                @endif
+
+
 
                     {{-- Benefits --}}
                     @if(!empty($therapy->benefits) && is_array($therapy->benefits))
@@ -103,7 +123,8 @@
                                     @php
         // if $img is already a URL or absolute path, use it directly
         $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
-                                    @endphp
+
+                                       @endphp
 
                                     <a href="{{ $src }}" target="_blank" class="block rounded-lg overflow-hidden">
                                         <img src="{{ $src }}" alt="{{ $therapy->title }}" loading="lazy"
@@ -149,20 +170,21 @@
                             <li><strong>Category:</strong> <span class="ml-2">{{ $therapy->tag ?? '—' }}</span></li>
                             <li><strong>Availability:</strong> <span
                                     class="ml-2">{{ $therapy->available ? 'Available' : 'Contact us' }}</span></li>
-                        @if(!empty($therapy->price))
-                            <li>
-                                <strong>Price:</strong>
-                                <span class="ml-2">
-                                    {{ ($therapy->price_currency ?? 'INR') . ' ' . number_format((float) $therapy->price, 2) }}
-                                </span>
-                            </li>
-                        @endif
+                            @if(!empty($therapy->price))
+                                <li>
+                                    <strong>Price:</strong>
+                                    <span class="ml-2">
+                                        {{ ($therapy->price_currency ?? 'INR') . ' ' . number_format((float) $therapy->price, 2) }}
+                                    </span>
+                                </li>
+                            @endif
 
                         </ul>
 
                         <div class="mt-4">
-                            <button data-booking data-treatment="{{ optional($therapy)->slug ?? optional($treatment)->slug ?? '' }}"
-    class="w-full btn-primary block text-center">Book a Consultation</button>
+                            <button data-booking
+                                data-treatment="{{ optional($therapy)->slug ?? optional($treatment)->slug ?? '' }}"
+                                class="w-full btn-primary block text-center">Book a Consultation</button>
 
                             <a href="mailto:info@example.com" class="w-full btn-secondary block text-center mt-3">Request
                                 Info</a>

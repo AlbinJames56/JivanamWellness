@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Therapy;
 use App\Models\Testimonial;
-
+use Mews\Purifier\Facades\Purifier;
+use Parsedown;
 class TherapyController extends Controller
 {
     public function index()
@@ -63,9 +64,29 @@ class TherapyController extends Controller
             ->take(3)
             ->get();
 
-        return view(
-            'components.therapy.therapy-show',
-            compact('therapy', 'relatedTestimonials')
-        );
+        // Prepare sanitized HTML for rendering
+        $raw = (string) ($therapy->content ?? '');
+
+        // If it doesn't contain HTML tags, treat as Markdown/plain text
+        $containsHtml = $raw !== strip_tags($raw);
+
+        if (!$containsHtml) {
+            $parser = new Parsedown();
+            $parser->setUrlsLinked(true);
+            $html = $parser->text($raw);
+        } else {
+            $html = $raw;
+        }
+
+        try {
+            $safeHtml = Purifier::clean($html, 'frontend_html');
+        } catch (\Throwable $e) {
+            \Log::warning('Purifier failed: ' . $e->getMessage());
+            // fallback to a minimal helper (app/helpers.php: clean)
+            $safeHtml = clean($html, 'default');
+        }
+
+        // Pass sanitized HTML to view
+        return view('components.therapy.therapy-show', compact('therapy', 'relatedTestimonials', 'safeHtml'));
     }
 }

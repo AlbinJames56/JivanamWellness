@@ -6,7 +6,9 @@ use App\Models\Therapy;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Forms\Components\RichEditor;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Tables;
@@ -23,40 +25,68 @@ class TherapyResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Section::make('Therapy Details')->schema([
-                Forms\Components\TextInput::make('title')->required(),
-                Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true),
-                Forms\Components\TextInput::make('duration')->placeholder('e.g. 7-21 days'),
-                Forms\Components\TextInput::make('tag')->placeholder('e.g. Detox, Massage'),
-                Forms\Components\Textarea::make('summary')->rows(3),
-                Forms\Components\Textarea::make('excerpt')->rows(2)->maxLength(255),
-            ]),
+            Section::make('Therapy Details')
+                ->schema([
+                    Grid::make(2)->schema([
+                        Forms\Components\TextInput::make('title')->required()->columnSpan(1), Forms\Components\Toggle::make('available')->columnSpan(1),
+                        Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true)->columnSpan(1),
 
+                        Forms\Components\TextInput::make('duration')->placeholder('e.g. 7-21 days')->columnSpan(1),
+                        Forms\Components\TextInput::make('tag')->placeholder('e.g. Detox, Massage')->columnSpan(1),
 
+                        Forms\Components\Textarea::make('summary')->rows(3)->columnSpan(1),
+                        Forms\Components\Textarea::make('excerpt')->rows(2)->maxLength(255)->columnSpan(1),
+                        RichEditor::make('content')
+                        ->nullable()
+                            ->toolbarButtons([
+                                'attachFiles',
+                                'blockquote',
+                                'bold',
+                                'bulletList',
+                                'codeBlock',
+                                'h2',
+                                'h3',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'strike',
+                                'underline',
+                                'undo',
+                            ])
+                        ->fileAttachmentsDisk('public')
+                        ->fileAttachmentsDirectory('therapies/attachments')
+                        ->fileAttachmentsVisibility('public')
+                        ->columnSpanFull(),
+                        Forms\Components\FileUpload::make('image')
+                            ->image()
+                            ->nullable()
+                            ->directory('therapies')
+                            ->disk('public')
+                            ->columnSpan(1),
 
-            Section::make('Media & Pricing')->schema([
-                Forms\Components\FileUpload::make('image')->image()->nullable()->directory( 'therapies')
-                ->disk('public'),
-                Forms\Components\FileUpload::make('gallery')
-                ->multiple()
-                ->nullable()
-                ->image()
-                ->directory('therapies')
-                ->disk('public'),
-                Forms\Components\TextInput::make('price')->numeric(),
-                Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4),
-                Forms\Components\Toggle::make('available'),
-            ]),
+                        Forms\Components\FileUpload::make('gallery')
+                            ->multiple()
+                            ->nullable()
+                            ->image()
+                            ->directory('therapies')
+                            ->disk('public')
+                            ->columnSpan(1),
 
-            Section::make('Meta')->schema([
-                Forms\Components\TextInput::make('meta_title')->maxLength(70),
-                Forms\Components\Textarea::make('meta_description')->rows(3)->maxLength(160),
-            ]),
-            Section::make('Content')->schema([
-                Forms\Components\RichEditor::make('content')->nullable(),
-            ]),
+                        Forms\Components\TextInput::make('price')->numeric()->columnSpan(1),
+                        Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)->columnSpan(1),
+
+                       
+
+                        Forms\Components\TextInput::make('meta_title')->maxLength(70)->columnSpan(1),
+                        Forms\Components\Textarea::make('meta_description')->rows(3)->maxLength(160)->columnSpan(1),
+                    ]),
+
+                    
+                ])->columnSpan(2)
         ]);
     }
+
 
     public static function table(Tables\Table $table): Tables\Table
     {
