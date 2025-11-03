@@ -78,8 +78,12 @@ $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNE
         crossorigin="anonymous">
 
     {{-- Alpine --}}
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     {{-- Floating Booking Styles --}}
     @stack('floating-styles')
 
@@ -104,8 +108,7 @@ $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNE
     
     @stack('scripts')
 
-
-    @stack('scripts')
+ 
 </body>
 
 </html>

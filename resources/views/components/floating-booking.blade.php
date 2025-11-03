@@ -5,17 +5,40 @@
 @once
     @push('floating-styles')
         <style>
-            .floating-card {
-                transition: transform .15s ease, box-shadow .15s ease;
+            /* floating-booking styles (improved) */
+            [ x-cloak] {
+                display: none !important;
             }
 
+            /* container hidden until Alpine ready */
+            [ x-data] {
+                opacity: 0;
+                transform: translateY(6px);
+                transition: opacity .22s ease, transform .22s ease;
+                will-change: opacity, transform;
+            }
+
+            [ x-data].alpine-ready {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* backdrop */
             .floating-backdrop {
-                background: rgba(0, 0, 0, 0.45);
+                background: rgba(0, 0, 0, .45);
                 backdrop-filter: blur(4px);
             }
 
-            .floating-modal:focus {
-                outline: none;
+            /* modal-lock helper to avoid scroll jump when used with position:fixed */
+            .modal-lock {
+                overflow: hidden !important;
+            }
+
+            /* keep your scroll-area tweaks (unchanged) */
+            .booking-scroll-area {
+                max-height: calc(50vh - 80px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             @media (max-width:640px) {
@@ -32,10 +55,6 @@
                 .floating-cta-bottom {
                     display: none
                 }
-            }
-
-            [x-cloak] {
-                display: none !important;
             }
 
             /* scroll area */
@@ -87,18 +106,18 @@
 @endonce
 
 @php
-    try {
-        $therapies = \App\Models\Therapy::orderBy('title')->get();
-    } catch (\Throwable $e) {
-        $therapies = collect();
-        \Log::info('Therapies not loaded for booking dropdown: ' . $e->getMessage());
-    }
-    $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store')
-        ? route('appointments.store')
-        : '#';
+try {
+    $therapies = \App\Models\Therapy::orderBy('title')->get();
+} catch (\Throwable $e) {
+    $therapies = collect();
+    \Log::info('Therapies not loaded for booking dropdown: ' . $e->getMessage());
+}
+$appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store')
+    ? route('appointments.store')
+    : '#';
 @endphp
 
-<div x-data="floatingBookingComponent()" x-init="setTimeout(() => init(), 100)">
+<div x-data="floatingBookingComponent()" x-init="init(); $el.classList.add('alpine-ready')" x-cloak>
 
 
     <!-- CTA Right (desktop) -->
@@ -335,7 +354,12 @@
                         return @json($appointmentsAction);
                     },
                     init() {
+                        requestAnimationFrame(() => {
+                            // mark ready to un-hide
+                            this.$el.classList.add('alpine-ready');
+                        });
                         this.open = false;
+                        this.minimized = false;
                         // Listen for programmatic open events
                         window.addEventListener('open-booking', (ev) => {
                             const d = ev.detail || {};
@@ -348,7 +372,7 @@
                                 if (el) el.focus();
                             }, 80);
                         });
-
+                        this.setupEventListeners();
                         // convenience global function
                         window.openBookingModal = (detail = {}) => window.dispatchEvent(new CustomEvent('open-booking', {
                             detail
@@ -409,32 +433,34 @@
                     },
 
                     openModal() {
-                        try {
-                            this._prevScroll = window.scrollY || document.documentElement.scrollTop || 0;
-                            document.body.classList.add('modal-lock');         // <-- new
-                            document.body.style.position = 'fixed';
-                            document.body.style.top = `-${this._prevScroll}px`;
-                            document.body.style.width = '100%';
-                        } catch (e) { console.debug('lock scroll failed', e); }
+                        // save scroll position
+                        this._prevScroll = window.scrollY || document.documentElement.scrollTop || 0;
+                        // add lock class (CSS handles overflow)
+                        document.documentElement.classList.add('modal-lock');
+                        document.body.style.top = `-${this._prevScroll}px`;
+                        document.body.style.position = 'fixed';
+                        document.body.style.width = '100%';
 
                         this.open = true;
-                        setTimeout(() => { const el = document.querySelector('input[name="name"]'); if (el) el.focus(); }, 80);
+                        setTimeout(() => {
+                            const el = document.querySelector('input[name="name"]');
+                            if (el) el.focus();
+                        }, 80);
                     },
 
                     closeModal() {
                         this.open = false;
-                        try {
-                            document.body.classList.remove('modal-lock');      // <-- new
-                            document.body.style.position = '';
-                            document.body.style.top = '';
-                            document.body.style.width = '';
-                            if (this._prevScroll != null) window.scrollTo(0, this._prevScroll);
+
+                        // restore scroll and remove lock
+                        document.documentElement.classList.remove('modal-lock');
+                        document.body.style.position = '';
+                        document.body.style.top = '';
+                        document.body.style.width = '';
+                        if (this._prevScroll != null) {
+                            window.scrollTo(0, this._prevScroll);
                             this._prevScroll = null;
-                        } catch (e) { console.debug('restore scroll failed', e); }
+                        }
                     },
-
-
-
                 };
             }
         </script>
