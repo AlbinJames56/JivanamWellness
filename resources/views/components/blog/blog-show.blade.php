@@ -1,4 +1,19 @@
 @extends('layouts.app')
+<style>
+    .therapy-content {
+        line-height: 1.75;
+        color: inherit;
+        max-width: none;
+    }
+
+    .therapy-content * {
+        all: revert;
+    }
+
+    .therapy-content>*+* {
+        margin-top: 1.25rem;
+    }
+</style>
 
 @section('content')
     <div class="min-h-screen bg-background text-foreground">
@@ -45,9 +60,10 @@
                 <main class="lg:col-span-2">
                     {{-- article content --}}
                     <article class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
-                        <div class="prose max-w-none prose-lg p-8" id="article-content">
+                        <div class="prose max-w-none prose-lg therapy-content p-6" id="article-content">
                             {{-- admin-supplied HTML --}}
-                            {!! $article->content !!}
+                            {!! $safeContent !!}
+
                         </div>
                     </article>
                     {{-- related articles --}}
@@ -92,16 +108,11 @@
                                 <h4 class="text-lg font-semibold">Ready to start your healing journey?</h4>
                                 <p class="text-sm opacity-90">Book a consultation and get a personalised Ayurvedic plan.</p>
                             </div>
-                           <div class="ml-auto"
-     data-booking
-     @if(isset($therapy))
-         data-treatment="{{ $therapy->slug }}"
-     @elseif(isset($article) && isset($article->therapy))
-         data-treatment="{{ $article->therapy->slug }}"
-     @endif
->
-    <a href="#booking" class="btn-white px-4 py-2 rounded-lg shadow">Book Now</a>
-</div>
+                            <div class="ml-auto" data-booking @if(isset($therapy)) data-treatment="{{ $therapy->slug }}"
+                            @elseif(isset($article) && isset($article->therapy))
+                                data-treatment="{{ $article->therapy->slug }}" @endif>
+                                <a href="#booking" class="btn-white px-4 py-2 rounded-lg shadow">Book Now</a>
+                            </div>
 
                         </div>
                     </div>
@@ -143,7 +154,8 @@
                             </p>
 
                             <div class="mt-3 flex gap-2">
-                                <a href="#booking" class="btn-primary px-3 py-2 text-sm">Book</a>
+                                <button href="#booking" id="open-booking-from-hero" data-booking data-source="blog-page"
+                                    class="btn-primary px-3 py-2 text-sm">Book</button>
                                 <a href="#" class="btn-secondary px-3 py-2 text-sm">Contact</a>
                             </div>
                         </div>

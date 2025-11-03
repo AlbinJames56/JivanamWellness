@@ -1,6 +1,9 @@
 {{-- resources/views/components/floating-booking.blade.php --}}
+
+
+
 @once
-    @push('styles')
+    @push('floating-styles')
         <style>
             .floating-card {
                 transition: transform .15s ease, box-shadow .15s ease;
@@ -15,20 +18,69 @@
                 outline: none;
             }
 
-            @media (max-width: 640px) {
+            @media (max-width:640px) {
                 .floating-cta-right {
-                    display: none;
+                    display: none
                 }
 
                 .floating-cta-bottom {
-                    display: block;
+                    display: block
                 }
             }
 
-            @media (min-width: 641px) {
+            @media (min-width:641px) {
                 .floating-cta-bottom {
+                    display: none
+                }
+            }
+
+            [x-cloak] {
+                display: none !important;
+            }
+
+            /* scroll area */
+            .booking-scroll-area {
+                max-height: calc(50vh - 80px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .booking-scroll-area::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .booking-scroll-area::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.12);
+                border-radius: 6px;
+            }
+
+            /* Hide scrollbar but keep scrolling (cross-browser) */
+            @media (hover: hover) and (pointer: fine) {
+
+                /* target the scroll area */
+                .booking-scroll-area,
+                .floating-modal[style*="overflow-y:auto"],
+                .floating-modal .booking-scroll-area {
+                    scrollbar-width: none;
+                    /* Firefox */
+                    -ms-overflow-style: none;
+                    /* IE 10+ */
+                }
+
+                /* Chrome, Edge, Safari, Opera */
+                .booking-scroll-area::-webkit-scrollbar,
+                .floating-modal::-webkit-scrollbar,
+                .floating-modal .booking-scroll-area::-webkit-scrollbar {
+                    width: 0;
+                    height: 0;
                     display: none;
                 }
+            }
+
+            /* Extra safety: hide horizontal scrollbar */
+            .floating-modal,
+            .floating-modal * {
+                overflow-x: hidden !important;
             }
         </style>
     @endpush
@@ -46,7 +98,9 @@
         : '#';
 @endphp
 
-<div x-data="floatingBookingComponent()" x-init="init()" x-cloak>
+<div x-data="floatingBookingComponent()" x-init="setTimeout(() => init(), 100)">
+
+
     <!-- CTA Right (desktop) -->
     <!-- <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 floating-cta-right">
         <div class="bg-card border border-border rounded-2xl shadow-lg p-4 max-w-xs floating-card">
@@ -77,7 +131,7 @@
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 floating-cta-bottom">
         <div class=" floating-card">
             <div class="flex items-center justify-center gap-3">
-                  
+
                 <div class="flex gap-2">
                     <button @click="openModal()" class="btn-primary px-4 py-2" data-booking>Book Appoinment</button>
                 </div>
@@ -86,10 +140,11 @@
     </div>
 
     <!-- Modal -->
-    <div x-show="open" x-trap.noscroll="open" x-transition.opacity
-        class="fixed inset-0 z-50 flex items-center justify-center floating-backdrop">
+    <div x-show="open" x-cloak x-trap.noscroll="open" x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center floating-backdrop overflow-x-hidden">
+
         <div @click.away="closeModal()" @keydown.escape.window="closeModal()" tabindex="0"
-            class="floating-modal bg-card border border-border rounded-2xl shadow-xl w-full max-w-4xl p-6 mx-4"
+            class="floating-modal bg-card border border-border rounded-2xl shadow-xl w-full max-w-4xl p-6 mx-4 overflow-x-hidden"
             role="dialog" aria-modal="true" aria-labelledby="booking-title">
 
             <div class="relative mb-4">
@@ -112,39 +167,48 @@
                 </button>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 pr-2 booking-scroll-area" style="max-height:calc(90vh - 160px);
+            overflow-y:auto;
+            -webkit-overflow-scrolling:touch;
+            scrollbar-width:none; /* Firefox */
+            -ms-overflow-style:none; /* IE/Edge */">
+
                 {{-- Improved, aligned and styled form --}}
-                <form method="POST" :action="actionUrl" class="grid grid-cols-1 gap-6" x-ref="form" novalidate>
+                <form method="POST" action="{{ route('appointments.store') }}" class="flex flex-col gap-6" x-ref="form"
+                    novalidate>
+
                     @csrf
                     <input type="hidden" name="source_page" :value="source" />
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col sm:flex-row sm:gap-4 gap-4">
+
                         {{-- Name --}}
-                        <div>
+                        <div class="flex-1">
                             <label for="name" class="block text-sm font-medium text-muted-foreground mb-1">Full
                                 name</label>
                             <div class="relative">
                                 <input id="name" name="name" x-model="form.name" required
-                                    class="block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                    class=" flex-1 block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
                                     placeholder="Your full name" aria-required="true" />
                             </div>
                         </div>
 
                         {{-- Phone --}}
-                        <div>
+                        <div class="flex-1">
                             <label for="phone"
                                 class="block text-sm font-medium text-muted-foreground mb-1">Phone</label>
                             <div class="relative">
                                 <input id="phone" name="phone" x-model="form.phone" required
-                                    class="block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                    class=" block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
                                     placeholder="+91 98765 43210" aria-required="true" />
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col sm:flex-row sm:gap-4 gap-4">
+
                         {{-- Email --}}
-                        <div>
+                        <div class="flex-1">
                             <label for="email" class="block text-sm font-medium text-muted-foreground mb-1">Email
                                 (optional)</label>
                             <input id="email" name="email" x-model="form.email" type="email"
@@ -153,7 +217,7 @@
                         </div>
 
                         {{-- Preferred date/time --}}
-                        <div>
+                        <div class="flex-1">
                             <label for="preferred"
                                 class="block text-sm font-medium text-muted-foreground mb-1">Preferred date &
                                 time</label>
@@ -190,17 +254,26 @@
                     </div>
 
                     {{-- Actions --}}
-                    <div class="flex items-center justify-between  gap-3">
-                        <div>
-                            <div class=" text-sm text-muted-foreground" x-show="form.therapy_slug">
-                                <span class="font-medium">Selected:</span> <span x-text="form.therapy_slug"></span>
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 ">
+
+                        <!-- Selected text (single line, truncate if long) -->
+                        <div class="min-w-0 w-full">
+                            <div class="text-sm text-muted-foreground whitespace-nowrap truncate"
+                                x-show="form.therapy_slug">
+                                <span class="font-medium">Selected:</span>
+                                <span x-text="form.therapy_slug"></span>
                             </div>
                         </div>
-                        <div>
+
+                        <!-- Buttons inline -->
+                        <div class="flex items-center justify-center gap-2 flex-shrink-0 w-full md:w-auto ">
+                            <button type="button" @click="closeModal()"
+                                class="btn-secondary px-4 py-2 rounded-lg whitespace-nowrap  ">
+                                Cancel
+                            </button>
                             <button type="submit"
-                                class="inline-flex items-center gap-2 btn-primary px-4 py-2 rounded-lg">
-                                <!-- small calendar icon -->
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                class="inline-flex items-center gap-2 btn-primary px-4 py-2 rounded-lg whitespace-nowrap  ">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                                     <path
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
@@ -208,12 +281,29 @@
                                 </svg>
                                 Request Booking
                             </button>
+                            <div class="md:w-4"></div>
 
-                            <button type="button" @click="closeModal()"
-                                class="btn-secondary px-4 py-2 rounded-lg">Cancel</button>
+
                         </div>
+                        @if(Session::has('success'))
+                            <script>
+                                document.addEventListener('DOMContentLoaded', () => {
+                                    // Show toast / popup
+                                    alert(@json(Session::get('success')));
+
+                                    // Optionally reopen modal if you want to display success inside it
+                                    // window.openBookingModal();
+                                });
+                            </script>
+                        @endif
 
                     </div>
+                    <p
+                        class="text-xs text-muted-foreground mt-3 leading-relaxed bg-green-50 p-3 rounded-lg border border-green-200">
+                        ✅ Once your booking is received, you will get an email confirmation.<br>
+                        📨 Our team will review your preferred timing and confirm via email.<br>
+                        🔄 If the selected slot isn't available, we will notify you with a rescheduled time.
+                    </p>
 
                     {{-- small privacy note --}}
                     <p class="text-xs text-muted-foreground mt-2">
@@ -245,6 +335,7 @@
                         return @json($appointmentsAction);
                     },
                     init() {
+                        this.open = false;
                         // Listen for programmatic open events
                         window.addEventListener('open-booking', (ev) => {
                             const d = ev.detail || {};
@@ -318,11 +409,32 @@
                     },
 
                     openModal() {
+                        try {
+                            this._prevScroll = window.scrollY || document.documentElement.scrollTop || 0;
+                            document.body.classList.add('modal-lock');         // <-- new
+                            document.body.style.position = 'fixed';
+                            document.body.style.top = `-${this._prevScroll}px`;
+                            document.body.style.width = '100%';
+                        } catch (e) { console.debug('lock scroll failed', e); }
+
                         this.open = true;
+                        setTimeout(() => { const el = document.querySelector('input[name="name"]'); if (el) el.focus(); }, 80);
                     },
+
                     closeModal() {
                         this.open = false;
-                    }
+                        try {
+                            document.body.classList.remove('modal-lock');      // <-- new
+                            document.body.style.position = '';
+                            document.body.style.top = '';
+                            document.body.style.width = '';
+                            if (this._prevScroll != null) window.scrollTo(0, this._prevScroll);
+                            this._prevScroll = null;
+                        } catch (e) { console.debug('restore scroll failed', e); }
+                    },
+
+
+
                 };
             }
         </script>

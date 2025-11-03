@@ -49,17 +49,17 @@ class BlogController extends Controller
         $paginated = $listQuery->orderByDesc('published_at')->paginate($perPage)->withQueryString();
 
         // categories list for filters (from published articles)
-       if (Schema::hasColumn('articles', 'category')) {
-    $categories = Article::query()
-        ->where('published', true)
-        ->pluck('category')
-        ->filter()
-        ->unique()
-        ->values()
-        ->all();
-} else {
-    $categories = []; // fallback: blade will show no category filters
-}
+        if (Schema::hasColumn('articles', 'category')) {
+            $categories = Article::query()
+                ->where('published', true)
+                ->pluck('category')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+        } else {
+            $categories = []; // fallback: blade will show no category filters
+        }
 
         // transform helpers
         $transform = function (Article $a) {
@@ -71,8 +71,8 @@ class BlogController extends Controller
                 'category' => $a->getAttribute('category') ?? 'Uncategorized',
                 'date' => optional($a->published_at)->format('M d, Y'),
                 'readTime' => $a->read_time ?? ($a->estimated_read_time ?? null),
-               'author' => $a->getAttribute('author_name') ?? ($a->author?->name ?? 'Staff'),
-'authorAvatar' => $this->resolveImageUrl($a->getAttribute('author_avatar') ?? null),
+                'author' => $a->getAttribute('author_name') ?? ($a->author?->name ?? 'Staff'),
+                'authorAvatar' => $this->resolveImageUrl($a->getAttribute('author_avatar') ?? null),
                 'slug' => $a->slug,
             ];
         };

@@ -81,7 +81,15 @@ $detailUrl = $slug ? route('treatments.show', $slug) : '#';
                 </svg>
             </a>
 
-            <a href="#booking" class="btn-secondary px-3 py-2 rounded-md">Book</a>
+            <button type="button"
+    class="btn-secondary px-3 py-2 rounded-md"
+    data-booking
+    data-therapy="{{ $slug ?? '' }}"
+    data-source="treatment-card"
+    aria-label="Book {{ $title }}">
+    Book
+</button>
+
 
         </div>
     </div>

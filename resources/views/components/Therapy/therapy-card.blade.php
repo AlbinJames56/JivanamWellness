@@ -6,15 +6,15 @@
     {{-- Media --}}
     <div class="relative h-44 sm:h-56 bg-muted/10 flex items-center justify-center overflow-hidden">
         @php
-            $image = $therapy->image ?? null;
-            // allow either absolute urls or storage paths
-            if ($image) {
-                $imageSrc = preg_match('/^(http(s)?:)?\\/\\//', trim($image))
-                    ? trim($image)
-                    : asset('storage/' . ltrim($image, '/'));
-            } else {
-                $imageSrc = null;
-            }
+$image = $therapy->image ?? null;
+// allow either absolute urls or storage paths
+if ($image) {
+    $imageSrc = preg_match('/^(http(s)?:)?\\/\\//', trim($image))
+        ? trim($image)
+        : asset('storage/' . ltrim($image, '/'));
+} else {
+    $imageSrc = null;
+}
         @endphp
 
         @if($imageSrc)
@@ -80,7 +80,7 @@
 
             <div>
                 @php
-                    $detailsUrl = (isset($therapy->slug) && !empty($therapy->slug)) ? route('therapies.show', $therapy->slug) : '#';
+$detailsUrl = (isset($therapy->slug) && !empty($therapy->slug)) ? route('therapies.show', $therapy->slug) : '#';
                 @endphp
 
                 <a href="{{ $detailsUrl }}" class="inline-flex items-center gap-2 text-sm text-primary underline"
@@ -89,11 +89,12 @@
                 </a>
             </div>
             <div>
-                <a href="#booking" role="button"
-                    class="btn-primary inline-flex items-center gap-2 text-sm flex-1 justify-center px-4"
-                    aria-label="Book {{ $therapy->title ?? 'therapy' }}">
-                    Book
-                </a>
+            <button type="button" class="btn-primary inline-flex items-center gap-2 text-sm flex-1 justify-center px-4" data-booking
+                data-therapy="{{ $therapy->slug ?? '' }}" data-source="therapy-card"
+                aria-label="Book {{ $therapy->title ?? 'therapy' }}">
+                Book
+            </button>
+
             </div>
         </div>
     </div>

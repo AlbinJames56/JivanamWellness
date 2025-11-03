@@ -1,5 +1,22 @@
 {{-- resources/views/components/painManagement/show.blade.php --}}
 @extends('layouts.app')
+<style>
+    .therapy-content {
+        line-height: 1.75;
+        color: inherit;
+        max-width: none;
+    }
+
+    /* Let the rich editor classes do their work */
+    .therapy-content * {
+        all: revert;
+    }
+
+    /* Optional spacing between blocks */
+    .therapy-content>*+* {
+        margin-top: 1.25rem;
+    }
+</style>
 
 @section('content')
     <div class="min-h-screen bg-background text-foreground">
@@ -36,22 +53,23 @@
                             @endif
                         </div>
 
-                        {{-- Primary description --}}
-                        <div class="prose max-w-none mt-4">
-                            {!! $treatment->description ?? ($treatment->more_info ?? 'No description available.') !!}
+                        <div class="therapy-content">
+                            {!! $safeHtml !!}
                         </div>
+
+
+
                     </div>
 
                     {{-- More info (shown by default) --}}
-                    @if(!empty($treatment->more_info))
-                        <section class="mt-6">
-                            <h3 class="text-lg font-semibold mb-3">More information</h3>
-                            <div class="prose max-w-none mt-2">
-                                {{-- WARNING: rendering raw HTML from DB. Consider sanitizing. --}}
-                                {!! $treatment->more_info !!}
-                            </div>
-                        </section>
-                    @endif
+                @if($moreInfo)
+                    <section class="mt-6">
+                         
+                        <div class="therapy-content">{!! $moreInfo !!}</div>
+                    </section>
+                @endif
+
+
 
                     {{-- Benefits --}}
                     @if(!empty($treatment->benefits) && is_array($treatment->benefits))
@@ -84,7 +102,7 @@
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 @foreach($treatment->gallery as $img)
                                     @php
-                                        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
+        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
                                     @endphp
                                     <a href="{{ $src }}" target="_blank" class="block rounded-lg overflow-hidden">
                                         <img src="{{ $src }}" alt="{{ $treatment->title }}" loading="lazy"
@@ -112,8 +130,6 @@
 
                         <div class="mt-4">
                             <button data-booking data-treatment="{{ optional($treatment)->slug ?? '' }}"
-
-
                                 class="w-full btn-primary block text-center">Book a Consultation</button>
                             <a href="mailto:info@example.com" class="w-full btn-secondary block text-center mt-3">Request
                                 Info</a>

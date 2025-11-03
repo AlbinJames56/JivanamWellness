@@ -23,7 +23,7 @@ class TestimonialResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
     protected static ?string $navigationLabel = 'Testimonials';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 6;
 
     public static function form(Schema $schema): Schema
     {
