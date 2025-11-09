@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Clinics;
-use App\Models\PainTechnique; // or Therapy model if you use a different one
+use App\Models\Therapy;
 use App\Models\Testimonial; // if you have a Testimonial model
 
 class HomeController extends Controller
@@ -14,21 +14,21 @@ class HomeController extends Controller
     {
         // latest 3 featured / popular treatments (adjust model & query to your app)
         try {
-            $treatments = PainTechnique::query()
+            $therapies = Therapy::query()
                 ->where('available', true)
                 ->orderByDesc('featured')
                 ->orderByDesc('created_at')
-                ->limit(6)
+                ->limit(3)
                 ->get();
         } catch (\Throwable $e) {
-            $treatments = collect();
-            \Log::error('Failed to load PainTechnique: ' . $e->getMessage());
+            $therapies = collect();
+            \Log::error('Failed to load Therapy: ' . $e->getMessage());
         }
 
         try {
             $clinics = Clinics::query()
                 ->orderBy('city')
-                ->limit(9)
+                ->limit(6)
                 ->get();
         } catch (\Throwable $e) {
             $clinics = collect();
@@ -49,7 +49,7 @@ class HomeController extends Controller
         try {
             $testimonials = Testimonial::query()
                 ->orderByDesc('created_at')
-                ->limit(6)
+                ->limit(3)
                 ->get();
         } catch (\Throwable $e) {
             $testimonials = collect();
@@ -57,9 +57,11 @@ class HomeController extends Controller
         }
 
         // Pass everything to the view. Your blade components already have in-view fallbacks too.
-        return view(
-            'pages.home',
-            compact('treatments', 'clinics', 'articles', 'testimonials')
-        );
+        return view('pages.home', [
+            'treatments' => $therapies ?? collect(),
+            'clinics' => $clinics ?? collect(),
+            'articles' => $articles ?? collect(),
+            'testimonials' => $testimonials ?? collect(),
+        ]);
     }
 }

@@ -13,14 +13,25 @@ class Appointment extends Model
         'notes',
         'preferred',
         'therapy_id',
+        'clinic_id',
         'therapy_slug',
         'status',
-        'confirmed_date'
+        'confirmed_date',
+          'booked_at', 
+    ];
+    protected $casts = [
+        'preferred' => 'date',
+        'booked_at' => 'datetime',
+        'confirmed_date' => 'datetime',
     ];
 
     public function therapy()
     {
         return $this->belongsTo(Therapy::class);
+    }
+    public function clinic()
+    {
+        return $this->belongsTo(\App\Models\Clinics::class);
     }
     protected static function booted()
     {

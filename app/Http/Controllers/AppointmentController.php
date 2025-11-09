@@ -21,6 +21,7 @@ class AppointmentController extends Controller
             'notes' => 'nullable',
             'preferred' => 'nullable|date',
             'therapy_slug' => 'nullable',
+            'clinic_id' => 'nullable|exists:clinics,id',
         ]);
 
         if (!empty($data['therapy_slug']) && class_exists(\App\Models\Therapy::class)) {
@@ -29,10 +30,12 @@ class AppointmentController extends Controller
                 $data['therapy_id'] = $therapy->id;
             }
         }
-
+        $data['booked_at'] = now();
         $appointment = Appointment::create($data);
-
-        Mail::to($data['email'])->send(new AppointmentSubmitted($appointment));
+        // send confirmation email if email provided
+        if (!empty($data['email'])) {
+            Mail::to($data['email'])->send(new AppointmentSubmitted($appointment));
+        }
 
         // ✅ Notify admin (will configure below)
         \Filament\Notifications\Notification::make()

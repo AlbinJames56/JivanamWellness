@@ -11,7 +11,8 @@
 @endphp
 
 <div
-  class="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col testimonial-item testimonial-card">
+  class="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-80 md:h-96 testimonial-item testimonial-card"
+  style="overflow: hidden; -webkit-overflow-scrolling: touch;">
   {{-- Video thumbnail (if any) --}}
   @if($isVideo && $videoThumbnail)
     <div class="relative mb-6 rounded-lg overflow-hidden">
@@ -26,7 +27,7 @@
     </div>
   @endif
 
-  <div class="flex-1 space-y-4">
+  <div class="flex-1 min-h-0 space-y-4">
     {{-- Rating --}}
     <div class="flex items-center gap-1">
       @for ($i = 0; $i < 5; $i++)
@@ -43,30 +44,31 @@
     </div>
 
     {{-- Quote --}}
-    <blockquote class="text-foreground leading-relaxed italic">
+    <blockquote class="text-foreground leading-relaxed italic" tabindex="0"
+      style="max-height:180px; overflow-y:auto; -webkit-overflow-scrolling:touch; white-space:pre-wrap; padding-right:6px;">
       "{{ $text }}"
     </blockquote>
 
     {{-- Treatment badge --}}
     @if($treatment)
-      <div class="text-sm text-primary font-medium bg-primary/10 rounded-full px-3 py-1 w-fit">
+      <div class="text-sm text-primary font-medium bg-primary/10 rounded-full px-3 pb-1 w-fit ">
         {{ $treatment }}
       </div>
     @endif
   </div>
 
   {{-- Footer: avatar + name --}}
-  <div class="flex items-center gap-3 pt-6 border-t border-border mt-6">
+  <div class="flex items-center gap-3 pt-6 border-t border-border mt-2">
     {{-- Avatar container: image (if available) else FontAwesome icon (with onerror fallback) --}}
     <div class="w-12 h-12 rounded-full overflow-hidden bg-muted/6 flex items-center justify-center flex-shrink-0"
       aria-hidden="true">
       {{-- If avatar provided, show image and have a JS onerror fallback to reveal the icon --}}
       @if(!empty($avatar))
         <img src="{{ $avatar }}" alt="{{ $name }}" class="w-full h-full object-cover" onerror="
-              this.style.display = 'none';
-              const fallback = this.parentNode.querySelector('.avatar-fallback');
-              if (fallback) fallback.style.display = 'flex';
-            " />
+                      this.style.display = 'none';
+                      const fallback = this.parentNode.querySelector('.avatar-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    " />
         {{-- hidden by default when avatar exists; visible if image fails --}}
         <div class="avatar-fallback w-full h-full flex items-center justify-center text-muted-foreground"
           style="display:none">

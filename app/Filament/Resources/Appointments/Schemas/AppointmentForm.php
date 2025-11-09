@@ -14,13 +14,21 @@ class AppointmentForm
     {
         return $schema
             ->components([
+                DateTimePicker::make('booked_at')
+                    ->label('Booked at')
+                    ->disabled(),
+
                 TextInput::make('name')->required()->disabled(),
                 TextInput::make('phone')->required()->disabled(),
                 TextInput::make('email')->disabled(),
                 Select::make('therapy_id')
                     ->relationship('therapy', 'title')
                     ->searchable()->disabled(),
-
+                Select::make('clinic_id')
+                    ->label('Clinic / Location')
+                    ->relationship('clinic', 'name')
+                    ->searchable()
+                    ->placeholder('Select clinic (optional)'),
                 // preferred appointment date/time
                 DateTimePicker::make('preferred')
                     ->label('Preferred date & time')
