@@ -31,7 +31,7 @@
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
             <div class="space-y-6">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 justify-between">
                     <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Wellness Insights & Tips</h2>
 
                     <div>

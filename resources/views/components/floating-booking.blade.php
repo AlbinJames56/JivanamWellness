@@ -106,45 +106,72 @@
 @endonce
 
 @php
-try {
-    $therapies = \App\Models\Therapy::orderBy('title')->get();
-} catch (\Throwable $e) {
-    $therapies = collect();
-    \Log::info('Therapies not loaded for booking dropdown: ' . $e->getMessage());
-}
-$appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store')
-    ? route('appointments.store')
-    : '#';
+    try {
+        $therapies = \App\Models\Therapy::orderBy('title')->get();
+    } catch (\Throwable $e) {
+        $therapies = collect();
+        \Log::info('Therapies not loaded for booking dropdown: ' . $e->getMessage());
+    }
+
+    try {
+        $clinics = \App\Models\Clinics::orderBy('city')->get();
+    } catch (\Throwable $e) {
+        $clinics = collect();
+        \Log::info('Clinics not loaded for booking dropdown: ' . $e->getMessage());
+    }
+    $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store')
+        ? route('appointments.store')
+        : '#';
 @endphp
 
 <div x-data="floatingBookingComponent()" x-init="init(); $el.classList.add('alpine-ready')" x-cloak>
 
+    {{-- Booking success toast (hidden by default) --}}
+    <div id="booking-toast" role="status" aria-live="polite" aria-hidden="true" style="position:fixed;
+            top:1rem; 
+            transform:translateX(-50%);
+            z-index:9999;
+            background:#ffffff;
+            color:var(--foreground,#0f172a);
+            border:1px solid rgba(0,0,0,0.06);
+            min-width:240px;
+            max-width:560px;
+            box-shadow:0 10px 30px rgba(2,6,23,0.12);
+            border-radius:12px;
+            padding:12px 14px;
+            gap:12px;
+            align-items:flex-start;
+            display:none;">
+        <div
+            style="flex-shrink:0; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:999px; background:var(--primary,#0ea5e9); color:white;">
+            <!-- check icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
 
-    <!-- CTA Right (desktop) -->
-    <!-- <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 floating-cta-right">
-        <div class="bg-card border border-border rounded-2xl shadow-lg p-4 max-w-xs floating-card">
-            
-
-            <div class="flex gap-2">
-                <button @click="openModal()" class="btn-primary w-full inline-flex items-center justify-center"
-                    data-booking>
-                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Book Consultation
-                </button>
-
-                <button @click="minimized = !minimized"
-                    class="h-10 w-10 rounded-full bg-muted/5 flex items-center justify-center" title="Minimize">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </button>
+        <div style="flex:1; min-width:0;">
+            <div id="booking-toast-title" style="font-weight:700; font-size:14px; color:var(--foreground,#0f172a);">
+                Appointment requested
+            </div>
+            <div id="booking-toast-body" style="font-size:13px; color:var(--muted,#6b7280); margin-top:2px;">
+                We've received your request and will confirm by email or phone.
             </div>
         </div>
-    </div> -->
+
+        <button id="booking-toast-close" aria-label="Dismiss"
+            style="background:transparent;border:none;color:var(--muted,#9ca3af);padding:6px; margin-left:6px; cursor:pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                aria-hidden="true">
+                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+    </div>
+
+
 
     <!-- CTA Bottom (mobile) -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 floating-cta-bottom">
@@ -194,7 +221,8 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
 
                 {{-- Improved, aligned and styled form --}}
                 <form method="POST" action="{{ route('appointments.store') }}" class="flex flex-col gap-6" x-ref="form"
-                    novalidate>
+                    x-on:submit.prevent="submitForm()" novalidate>
+
 
                     @csrf
                     <input type="hidden" name="source_page" :value="source" />
@@ -210,6 +238,8 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                                     class=" flex-1 block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
                                     placeholder="Your full name" aria-required="true" />
                             </div>
+                            <p x-show="errors.name" x-text="errors.name" class="text-xs text-red-500 mt-1"
+                                style="display:none;"></p>
                         </div>
 
                         {{-- Phone --}}
@@ -219,8 +249,11 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                             <div class="relative">
                                 <input id="phone" name="phone" x-model="form.phone" required
                                     class=" block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                                    placeholder="+91 98765 43210" aria-required="true" />
+                                    placeholder="+91 00000 00000" aria-required="true" />
                             </div>
+                            <p x-show="errors.phone" x-text="errors.phone" class="text-xs text-red-500 mt-1"
+                                style="display:none;"></p>
+
                         </div>
                     </div>
 
@@ -229,20 +262,24 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                         {{-- Email --}}
                         <div class="flex-1">
                             <label for="email" class="block text-sm font-medium text-muted-foreground mb-1">Email
-                                (optional)</label>
+                            </label>
                             <input id="email" name="email" x-model="form.email" type="email"
                                 class="block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary"
                                 placeholder="you@example.com" />
                         </div>
 
                         {{-- Preferred date/time --}}
+                        {{-- Preferred date (date only) --}}
                         <div class="flex-1">
                             <label for="preferred"
-                                class="block text-sm font-medium text-muted-foreground mb-1">Preferred date &
-                                time</label>
-                            <input id="preferred" name="preferred" x-model="form.preferred" type="datetime-local"
+                                class="block text-sm font-medium text-muted-foreground mb-1">Preferred date</label>
+                            <input id="preferred" name="preferred" x-model="form.preferred" type="date"
                                 class="block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                         </div>
+
+                        {{-- Location select (clinics) --}}
+
+
                     </div>
 
                     {{-- Therapy select (full width) --}}
@@ -262,7 +299,22 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                             your
                             consultation.</p>
                     </div>
-
+                    <div class="mt-4">
+                        <label for="clinic_id" class="block text-sm font-medium text-muted-foreground mb-1">Preferred
+                            location</label>
+                        <div class="relative">
+                            <select id="clinic_id" name="clinic_id" x-model="form.clinic_id"
+                                class="block w-full rounded-lg border border-border bg-transparent px-4 py-2 text-foreground shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                                <option value="">— Select clinic / location —</option>
+                                @foreach($clinics as $c)
+                                    <option value="{{ $c->id }}">{{ $c->name }} @if($c->city) — {{ $c->city }} @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <p class="text-xs text-muted-foreground mt-2">Choose a preferred clinic location for your
+                            consultation.</p>
+                    </div>
                     {{-- Notes --}}
                     <div>
                         <label for="notes" class="block text-sm font-medium text-muted-foreground mb-1">Notes
@@ -307,22 +359,25 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                         @if(Session::has('success'))
                             <script>
                                 document.addEventListener('DOMContentLoaded', () => {
-                                    // Show toast / popup
-                                    alert(@json(Session::get('success')));
-
-                                    // Optionally reopen modal if you want to display success inside it
-                                    // window.openBookingModal();
+                                    // small delay to allow Alpine init to register the showBookingToast function
+                                    const msg = @json(Session::get('success'));
+                                    if (window.showBookingToast) {
+                                        window.showBookingToast(msg);
+                                    } else {
+                                        setTimeout(() => { window.showBookingToast && window.showBookingToast(msg); }, 180);
+                                    }
                                 });
                             </script>
                         @endif
 
+
                     </div>
-                    <p
+                    <!-- <p
                         class="text-xs text-muted-foreground mt-3 leading-relaxed bg-green-50 p-3 rounded-lg border border-green-200">
                         ✅ Once your booking is received, you will get an email confirmation.<br>
                         📨 Our team will review your preferred timing and confirm via email.<br>
                         🔄 If the selected slot isn't available, we will notify you with a rescheduled time.
-                    </p>
+                    </p> -->
 
                     {{-- small privacy note --}}
                     <p class="text-xs text-muted-foreground mt-2">
@@ -348,18 +403,28 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                         email: '',
                         preferred: '',
                         notes: '',
-                        therapy_slug: ''
+                        therapy_slug: '',
+                        clinic_id: ''
                     },
+                    errors: {
+                        name: '',
+                        phone: ''
+                    },
+
                     get actionUrl() {
                         return @json($appointmentsAction);
                     },
+
                     init() {
+                        // mark ready to un-hide
                         requestAnimationFrame(() => {
-                            // mark ready to un-hide
                             this.$el.classList.add('alpine-ready');
                         });
-                        this.open = false;
-                        this.minimized = false;
+
+                        // expose helpers for global use (used by server-flash script)
+                        window.showBookingToast = (message) => this._showBookingToast(message);
+                        window.hideBookingToast = () => this._hideBookingToast();
+
                         // Listen for programmatic open events
                         window.addEventListener('open-booking', (ev) => {
                             const d = ev.detail || {};
@@ -372,35 +437,16 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                                 if (el) el.focus();
                             }, 80);
                         });
-                        this.setupEventListeners();
-                        // convenience global function
-                        window.openBookingModal = (detail = {}) => window.dispatchEvent(new CustomEvent('open-booking', {
-                            detail
-                        }));
 
-                        // expose therapies map (same as before)
-                        window.THERAPIES_MAP = @json($therapies->pluck('title', 'slug')->all());
-
-                        // Defensive: only open modal when user *clicks* on elements that explicitly opt in:
-                        // - elements with data-booking, or
-                        // - elements with class .open-booking
-                        // We deliberately do NOT include a[href="#booking"] so plain anchor navigation won't open modal.
+                        // Delegate clicks for any elements opting into the booking modal.
                         document.addEventListener('click', (ev) => {
                             try {
-                                // ensure it's a user-initiated click (optional but helpful)
                                 if (ev && ev.isTrusted === false) return;
-
                                 const el = ev.target.closest && ev.target.closest('[data-booking], .open-booking');
                                 if (!el) return;
-
-                                // If it's an anchor with href="#booking" but NOT data-booking, let normal anchor behaviour occur:
-                                if (el.tagName && el.tagName.toLowerCase() === 'a' && el.getAttribute('href') === '#booking' && !el.hasAttribute('data-booking')) {
-                                    // allow default anchor navigation — do not open modal
-                                    return;
-                                }
+                                if (el.tagName && el.tagName.toLowerCase() === 'a' && el.getAttribute('href') === '#booking' && !el.hasAttribute('data-booking')) return;
 
                                 ev.preventDefault();
-
                                 const detail = {};
                                 const t = el.getAttribute('data-treatment') || el.dataset.treatment;
                                 const src = el.getAttribute('data-source') || el.dataset.source;
@@ -410,37 +456,95 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                                 if (el.dataset.name) prefill.name = el.dataset.name;
                                 if (el.dataset.email) prefill.email = el.dataset.email;
                                 if (Object.keys(prefill).length) detail.prefill = prefill;
-
                                 window.openBookingModal(detail);
-                            } catch (e) {
-                                // don't break page on error
-                                console.debug('booking click handler error', e);
-                            }
+                            } catch (e) { console.debug('booking click handler error', e); }
                         }, { passive: false });
 
-                        // If page loads with hash "#booking", scroll to booking form instead of auto-opening the modal
-                        if (window.location.hash === '#booking') {
-                            // small timeout so page finishes layout, then smooth-scroll
+                        // convenience global
+                        window.openBookingModal = (detail = {}) => window.dispatchEvent(new CustomEvent('open-booking', { detail }));
+
+                        // expose therapies map
+                        window.THERAPIES_MAP = @json($therapies->pluck('title', 'slug')->all());
+
+                        // toast close button handler
+                        const btn = document.getElementById('booking-toast-close');
+                        if (btn) btn.addEventListener('click', () => window.hideBookingToast());
+                    },
+
+                    // client-side form submit wrapper with simple validation
+                    submitForm() {
+                        // reset errors
+                        this.errors.name = '';
+                        this.errors.phone = '';
+
+                        const name = (this.form.name || '').trim();
+                        const phone = (this.form.phone || '').trim();
+
+                        if (!name || name.length < 2) {
+                            this.errors.name = 'Please enter your full name';
+                            document.getElementById('name')?.focus();
+                            return;
+                        }
+
+                        // simple phone sanity check; adjust as you wish
+                        const digits = phone.replace(/\D/g, '');
+                        if (!phone || digits.length < 7) {
+                            this.errors.phone = 'Please enter a valid phone number';
+                            document.getElementById('phone')?.focus();
+                            return;
+                        }
+
+                        // passed client-side checks — submit the form (native submit)
+                        this.$refs.form.submit();
+                    },
+
+                    // show/hide toast helpers (manipulate the DOM element)
+                    _showBookingToast(message) {
+                        try {
+                            const node = document.getElementById('booking-toast');
+                            if (!node) return;
+                            const title = document.getElementById('booking-toast-title');
+                            const body = document.getElementById('booking-toast-body');
+                            if (title) title.textContent = 'Appointment requested';
+                            if (body) body.textContent = message || 'Your request has been received. We will confirm by email.';
+                            node.style.display = 'flex';
+                            node.setAttribute('aria-hidden', 'false');
+
+                            // animate in
+                            node.style.opacity = '0';
+                            node.style.transform = 'translateY(-8px)';
+                            node.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220, easing: 'cubic-bezier(.2,.9,.3,1)' });
+                            node.style.opacity = '1';
+                            node.style.transform = 'none';
+
+                            // auto-hide after 6s
+                            clearTimeout(this._toastTimer);
+                            this._toastTimer = setTimeout(() => { this._hideBookingToast(); }, 6000);
+                        } catch (e) { console.debug(e); }
+                    },
+
+                    _hideBookingToast() {
+                        const node = document.getElementById('booking-toast');
+                        if (!node) return;
+                        try {
+                            node.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-8px)' }], { duration: 180, easing: 'ease' });
                             setTimeout(() => {
-                                const target = document.querySelector('#booking');
-                                if (target) {
-                                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
-                                    try { target.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
-                                }
-                            }, 250);
+                                node.style.display = 'none';
+                                node.setAttribute('aria-hidden', 'true');
+                            }, 190);
+                        } catch (e) {
+                            node.style.display = 'none';
+                            node.setAttribute('aria-hidden', 'true');
                         }
                     },
 
+
                     openModal() {
-                        // save scroll position
                         this._prevScroll = window.scrollY || document.documentElement.scrollTop || 0;
-                        // add lock class (CSS handles overflow)
                         document.documentElement.classList.add('modal-lock');
                         document.body.style.top = `-${this._prevScroll}px`;
                         document.body.style.position = 'fixed';
                         document.body.style.width = '100%';
-
                         this.open = true;
                         setTimeout(() => {
                             const el = document.querySelector('input[name="name"]');
@@ -450,8 +554,6 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
 
                     closeModal() {
                         this.open = false;
-
-                        // restore scroll and remove lock
                         document.documentElement.classList.remove('modal-lock');
                         document.body.style.position = '';
                         document.body.style.top = '';
@@ -460,9 +562,11 @@ $appointmentsAction = \Illuminate\Support\Facades\Route::has('appointments.store
                             window.scrollTo(0, this._prevScroll);
                             this._prevScroll = null;
                         }
-                    },
+                    }
                 };
             }
         </script>
     @endpush
+
+
 @endonce

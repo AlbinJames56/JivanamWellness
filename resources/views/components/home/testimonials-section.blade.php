@@ -49,7 +49,7 @@
             <div class="overflow-hidden">
                 <div id="testimonials-slider" class="testimonials-slider  ">
                     @foreach ($testimonials as $testimonial)
-                        <div class="testimonial-item-wrapper p-0  ">
+                        <div class="testimonial-item-wrapper p-0  h-50">
                             @include('components.home.testimonial-card', [
                                 'name' => $testimonial['name'],
                                 'location' => $testimonial['location'],
@@ -60,7 +60,7 @@
                                 'isVideo' => $testimonial['isVideo'] ?? false,
                                 'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
                             ])
-                                    </div>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -250,6 +250,7 @@
             /* fallback caps in case JS hasn't run yet */
             max-width: 100%;
             box-sizing: border-box;
+            
         }
 
         /* Optional: center content vertically if you'd like same-height cards */

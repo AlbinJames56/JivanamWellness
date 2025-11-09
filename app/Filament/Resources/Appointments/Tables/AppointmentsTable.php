@@ -15,9 +15,11 @@ class AppointmentsTable
     {
         return $table
             ->columns([
+                TextColumn::make('booked_at')->dateTime()->label('Booked at')->sortable(),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('phone'),
-
+                TextColumn::make('clinic.name')->label('Clinic')->sortable()->searchable(),
+                TextColumn::make('therapy.title')->label('Therapy')->sortable()->searchable(),
                 SelectColumn::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -34,19 +36,16 @@ class AppointmentsTable
                     ->dateTime()
                     ->sortable(),
 
-                TextColumn::make('confirmed_date')
-                    ->label('Confirmed Date')
-                    ->dateTime()
-                    ->sortable()
-                    ->formatStateUsing(fn($state, $record) => $record->confirmed_date ?? $record->preferred),
-
+                
                 TextColumn::make('created_at')
                     ->label('Submitted On')
                     ->date(),
             ])
+            ->defaultSort('booked_at', 'desc')
             ->recordActions([
                 EditAction::make(),
             ])
+            
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
