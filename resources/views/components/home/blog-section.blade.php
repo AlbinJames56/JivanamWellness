@@ -29,30 +29,35 @@
 
 <section id="blog" class="py-16 lg:py-24 bg-muted/30">
     <div class="max-w-[1100px] mx-auto px-5">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
-            <div class="space-y-6">
-                <div class="flex items-center gap-4 justify-between">
-                    <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Wellness Insights & Tips</h2>
-
-                    <div>
-                        <a href="{{ url('/blog') }}" class="btn-secondary inline-flex items-center gap-2 px-4 py-2">
-                            View All Articles
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
+        <div class="mb-16 relative">
+            {{-- Centered heading/subheading --}}
+            <div class="max-w-2xl mx-auto text-center space-y-4">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">
+                    Our Blogs
+                </h2>
 
                 <p class="text-lg text-muted-foreground leading-relaxed">
-                    Stay informed with the latest in Ayurvedic wisdom, practical health tips, and insights from our
-                    experienced practitioners.
+                    Explore tips, remedies, and lifestyle wisdom inspired by the science of Ayurveda.
                 </p>
             </div>
+
+            {{-- Button: absolute on lg (right), stacked below on small screens --}}
+            <div
+                class="mt-4 lg:mt-0 lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2 flex justify-center lg:justify-end">
+                <a href="{{ url('/blog') }}" class="btn-secondary inline-flex items-center gap-2 px-4 py-2 w-auto"
+                    style="font-weight:600;">
+                    View All Articles
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
         </div>
+
+
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach ($blogPosts as $post)

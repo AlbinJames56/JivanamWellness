@@ -40,7 +40,7 @@
         <div class="text-center space-y-6 mb-16">
             <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">What Our Patients Say</h2>
             <p class="text-lg text-muted-foreground   mx-auto leading-relaxed">
-                Real stories from people who have experienced the transformative power of Ayurvedic healing.
+                 Hear from those who trusted Ayurveda to bring back their health, energy, and peace of mind.
             </p>
         </div>
 

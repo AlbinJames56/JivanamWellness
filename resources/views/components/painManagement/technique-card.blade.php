@@ -2,37 +2,37 @@
 @props(['technique', 'variant' => 'more'])
 
 @php
-// Raw value (may be array, json-string, or null)
-$benefitsArr = $technique->benefits ?? [];
-// ensure it's an array of strings
-if (is_string($benefitsArr)) {
-    $decoded = json_decode($benefitsArr, true);
-    $benefitsArr = $decoded === null ? [$benefitsArr] : $decoded;
-}
-$benefits = collect($benefitsArr)->map(function ($b) {
-    if (is_array($b)) {
-        return $b['value'] ?? $b['benefit'] ?? implode(' ', array_filter($b));
+    // Raw value (may be array, json-string, or null)
+    $benefitsArr = $technique->benefits ?? [];
+    // ensure it's an array of strings
+    if (is_string($benefitsArr)) {
+        $decoded = json_decode($benefitsArr, true);
+        $benefitsArr = $decoded === null ? [$benefitsArr] : $decoded;
     }
-    return (string) $b;
-})->filter()->values()->all();
+    $benefits = collect($benefitsArr)->map(function ($b) {
+        if (is_array($b)) {
+            return $b['value'] ?? $b['benefit'] ?? implode(' ', array_filter($b));
+        }
+        return (string) $b;
+    })->filter()->values()->all();
 
-$n = count($benefits);
-// clamp between 1 and 5
-$cols = max(1, min(5, $n));
-// responsive grid classes
+    $n = count($benefits);
+    // clamp between 1 and 5
+    $cols = max(1, min(5, $n));
+    // responsive grid classes
 
-$slug = $technique->slug ?? null;
-$detailUrl = $slug ? route('treatments.show', $slug) : '#';
+    $slug = $technique->slug ?? null;
+    $detailUrl = $slug ? route('treatments.show', $slug) : '#';
 @endphp
 
 <article x-data="{ open: false }"
-    class="group bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col h-full">
+    class="group bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition flex flex-col h-full">
     {{-- Media: fixed height to keep cards equal --}}
     <div class="h-44 mb-4 overflow-hidden rounded-lg bg-muted/5 flex items-center justify-center">
         @if(!empty($technique->image))
             @php
-    $img = $technique->image;
-    $imgSrc = preg_match('/^(http(s)?:)?\\/\\//', trim($img)) ? trim($img) : asset('storage/' . ltrim($img, '/'));
+                $img = $technique->image;
+                $imgSrc = preg_match('/^(http(s)?:)?\\/\\//', trim($img)) ? trim($img) : asset('storage/' . ltrim($img, '/'));
             @endphp
             <img src="{{ $imgSrc }}" alt="{{ $technique->title ?? 'Technique image' }}"
                 class="w-full h-full object-cover transition-transform group-hover:scale-105" />
@@ -61,13 +61,14 @@ $detailUrl = $slug ? route('treatments.show', $slug) : '#';
 
         @if (count($benefits))
             <div class="mb-1">
-            <div class="flex flex-wrap gap-2">
-                @foreach ($benefits as $b)
-                    <span class="p-1 px-2 rounded-lg border border-emerald-500 bg-muted/5 text-sm text-foreground whitespace-nowrap">
-                        {{ $b }}
-                    </span>
-                @endforeach
-            </div>
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($benefits as $b)
+                        <span
+                            class="p-1 px-2 rounded-lg border border-emerald-500 bg-muted/5 text-sm text-foreground whitespace-nowrap">
+                            {{ $b }}
+                        </span>
+                    @endforeach
+                </div>
 
             </div>
         @endif

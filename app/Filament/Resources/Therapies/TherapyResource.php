@@ -7,11 +7,13 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TagsInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -28,16 +30,28 @@ class TherapyResource extends Resource
             Section::make('Therapy Details')
                 ->schema([
                     Grid::make(2)->schema([
-                        Forms\Components\TextInput::make('title')->required()->columnSpan(1), Forms\Components\Toggle::make('available')->columnSpan(1),
+                        Forms\Components\TextInput::make('title')->required()->columnSpan(1),
+                        Forms\Components\Toggle::make('available')->columnSpan(1),
                         Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true)->columnSpan(1),
 
                         Forms\Components\TextInput::make('duration')->placeholder('e.g. 7-21 days')->columnSpan(1),
-                        Forms\Components\TextInput::make('tag')->placeholder('e.g. Detox, Massage')->columnSpan(1),
+                        TagsInput::make('tags')
+                            ->label('Tags')
+                            ->columnSpan(1)
+                            ->placeholder('Add tags and press enter')
+                            ->separator(',') // allow comma separated typing
+                            ->suggestions([
+                                'Ayurveda Massage Therapy',
+                                'Stress Relief',
+                                'Rejuvenation',
+                                'Traditional Healing',
+                                'Body Pain Relief',
+                            ]),
 
                         Forms\Components\Textarea::make('summary')->rows(3)->columnSpan(1),
                         Forms\Components\Textarea::make('excerpt')->rows(2)->maxLength(255)->columnSpan(1),
                         RichEditor::make('content')
-                        ->nullable()
+                            ->nullable()
                             ->toolbarButtons([
                                 'attachFiles',
                                 'blockquote',
@@ -54,10 +68,10 @@ class TherapyResource extends Resource
                                 'underline',
                                 'undo',
                             ])
-                        ->fileAttachmentsDisk('public')
-                        ->fileAttachmentsDirectory('therapies/attachments')
-                        ->fileAttachmentsVisibility('public')
-                        ->columnSpanFull(),
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('therapies/attachments')
+                            ->fileAttachmentsVisibility('public')
+                            ->columnSpanFull(),
                         Forms\Components\FileUpload::make('image')
                             ->image()
                             ->nullable()
@@ -76,13 +90,13 @@ class TherapyResource extends Resource
                         Forms\Components\TextInput::make('price')->numeric()->columnSpan(1),
                         Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)->columnSpan(1),
 
-                       
+
 
                         Forms\Components\TextInput::make('meta_title')->maxLength(70)->columnSpan(1),
                         Forms\Components\Textarea::make('meta_description')->rows(3)->maxLength(160)->columnSpan(1),
                     ]),
 
-                    
+
                 ])->columnSpan(2)
         ]);
     }
@@ -91,12 +105,20 @@ class TherapyResource extends Resource
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table->columns([
-                Tables\Columns\ImageColumn::make('image')->rounded(),
-                Tables\Columns\TextColumn::make('title')->searchable(),
-                Tables\Columns\TextColumn::make('tag')->label('Category')->sortable(),
-                Tables\Columns\BooleanColumn::make('featured'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
-            ])
+            Tables\Columns\ImageColumn::make('image')->rounded(),
+            Tables\Columns\TextColumn::make('title')->searchable(),
+            TextColumn::make('tags')
+                ->label('Tags')
+                ->formatStateUsing(function ($state) {
+                    if (is_array($state)) {
+                        return implode(', ', $state);
+                    }
+                    return $state;
+                })
+                ->wrap(),
+            Tables\Columns\BooleanColumn::make('featured'),
+            Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
+        ])
             ->actions([
                 EditAction::make(),
             ])
@@ -112,11 +134,11 @@ class TherapyResource extends Resource
 
     public static function getPages(): array
     {
-      return [
-          'index' => Pages\ListTherapies::route('/'),
-          'create' => Pages\CreateTherapy::route('/create'),
-          'edit' => Pages\EditTherapy::route('/{record}/edit'),
-      ];
+        return [
+            'index' => Pages\ListTherapies::route('/'),
+            'create' => Pages\CreateTherapy::route('/create'),
+            'edit' => Pages\EditTherapy::route('/{record}/edit'),
+        ];
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder

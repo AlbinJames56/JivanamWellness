@@ -17,7 +17,11 @@ if ($model instanceof \Illuminate\Database\Eloquent\Model) {
 } elseif (is_string($model)) {
     $slug = $model;
 }
-
+$shortDuration = $duration ?? '';
+    if (Str::contains($shortDuration, '(')) {
+        // Trim text before the first '(' to remove extra details
+        $shortDuration = trim(Str::before($shortDuration, '('));
+    }
 /**
  * IMPORTANT: point to Therapy detail route.
  * If your route is named differently (e.g., 'therapy.show' or 'therapies.show'),
@@ -40,10 +44,10 @@ $detailUrl = $slug ? route('therapies.show', $slug) : '#';
                 </span>
             @endif
 
-            @if (!empty($duration))
+            @if (!empty($shortDuration))
                 <span class="absolute top-3 right-3 bg-white/90 text-foreground text-xs font-medium px-2 py-1 rounded-md flex items-center gap-1">
                     <i class="fa fa-clock" aria-hidden="true" style="font-size:0.8rem;"></i>
-                    {{ $duration }}
+                    {{ $shortDuration }}
                 </span>
             @endif
         </div>

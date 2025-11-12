@@ -1,4 +1,19 @@
 @extends('layouts.app')
+@php
+    use Illuminate\Support\Str;
+
+    // Normalize tags to a simple PHP array of strings
+    $rawTags = $therapy->tags ?? [];
+    if ($rawTags instanceof \Illuminate\Support\Collection) {
+        $tags = $rawTags->all();
+    } elseif (is_string($rawTags)) {
+        $tags = array_values(array_filter(array_map('trim', preg_split('/[,;|]+/', $rawTags))));
+    } elseif (is_array($rawTags)) {
+        $tags = array_values(array_filter(array_map('trim', $rawTags)));
+    } else {
+        $tags = [];
+    }
+@endphp
 <style>
     .therapy-content {
         line-height: 1.75;
@@ -31,15 +46,24 @@
                 <img src="{{ $therapy->image ? asset('storage/' . $therapy->image) : asset('fallback.jpg') }}"
                     alt="{{ $therapy->title }}" loading="lazy" class="w-full h-[420px] lg:h-[520px] object-cover" />
 
-                <div class="absolute left-4 bottom-4 md:left-8 md:bottom-8">
+                <div class="absolute left-4 bottom-4 right-4  md:left-6  md:right-6 md:bottom-6">
                     <div class="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/6  ">
                         <div class="flex items-center justify-between gap-4">
                             <div>
-                                <div class="text-sm text-border">{{ $therapy->tag ?? 'Therapy' }}</div>
+                                @if(count($tags))
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        @foreach($tags as $t)
+                                            <span
+                                                class="text-xs leading-tight px-2 py-1 rounded-full bg-white/90 border border-white/60 text-foreground shadow-sm whitespace-nowrap">
+                                                {{ $t }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
                                 <h1 class="text-2xl md:text-3xl font-semibold leading-tight text-background">
                                     {{ $therapy->title }}
                                 </h1>
-                                <div class="text-sm text-muted-foreground mt-1">{{ $therapy->duration ?? '—' }}</div>
+                                <!--<div class="text-sm text-border mt-1">{{ $therapy->duration ?? '—' }}</div>-->
                             </div>
 
                             <div class="hidden sm:flex items-center gap-3">
@@ -82,11 +106,11 @@
                         </div>
                     </div>
 
-                @if(!empty($safeHtml))
-                    <div class="therapy-content mt-4">
-                        {!! $safeHtml !!}
-                    </div>
-                @endif
+                    @if(!empty($safeHtml))
+                        <div class="therapy-content mt-4">
+                            {!! $safeHtml !!}
+                        </div>
+                    @endif
 
 
 
@@ -121,8 +145,8 @@
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 @foreach($therapy->gallery as $img)
                                     @php
-        // if $img is already a URL or absolute path, use it directly
-        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
+                                        // if $img is already a URL or absolute path, use it directly
+                                        $src = preg_match('/^(http(s)?:)?\\/\\//', $img) || str_starts_with($img, '/') ? $img : asset('storage/' . ltrim($img, '/'));
 
                                        @endphp
 

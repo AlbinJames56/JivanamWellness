@@ -1,51 +1,51 @@
 @php
-    // Use clinics passed from controller, fallback to your sample if empty
-    $clinics = $clinics ?? collect();
-    $preserve = request()->except(['city', 'open']);
-    $clearUrl = url()->current() . (count($preserve) ? ('?' . http_build_query($preserve)) : '');
-    if ($clinics instanceof \Illuminate\Support\Collection) {
-        // map models to arrays for backward compatibility
-        $clinics = $clinics->map(function ($c) {
-            if (is_object($c)) {
-                return [
-                    'name' => $c->name ?? 'Clinic',
-                    'address' => $c->address ?? '',
-                    'city' => $c->city ?? '',
-                    'hours' => $c->hours ?? '',
-                    'phone' => $c->phone ?? '',
-                    'image' => $c->image ? (Str::startsWith($c->image, ['http://', 'https://']) ? $c->image : asset('storage/' . ltrim($c->image, '/'))) : null,
-                    'isOpen' => (bool) ($c->is_open ?? $c->isOpen ?? false),
-                    'specialties' => $c->specialties ?? [],
-                    'location_link' => $c->location_link ?? '',
-                ];
-            }
-            return (array) $c;
-        })->all();
-    } elseif (is_array($clinics)) {
-        // keep as is
-    } else {
-        $clinics = [];
-    }
+// Use clinics passed from controller, fallback to your sample if empty
+$clinics = $clinics ?? collect();
+$preserve = request()->except(['city', 'open']);
+$clearUrl = url()->current() . (count($preserve) ? ('?' . http_build_query($preserve)) : '');
+if ($clinics instanceof \Illuminate\Support\Collection) {
+    // map models to arrays for backward compatibility
+    $clinics = $clinics->map(function ($c) {
+        if (is_object($c)) {
+            return [
+                'name' => $c->name ?? 'Clinic',
+                'address' => $c->address ?? '',
+                'city' => $c->city ?? '',
+                'hours' => $c->hours ?? '',
+                'phone' => $c->phone ?? '',
+                'image' => $c->image ? (Str::startsWith($c->image, ['http://', 'https://']) ? $c->image : asset('storage/' . ltrim($c->image, '/'))) : null,
+                'isOpen' => (bool) ($c->is_open ?? $c->isOpen ?? false),
+                'specialties' => $c->specialties ?? [],
+                'location_link' => $c->location_link ?? '',
+            ];
+        }
+        return (array) $c;
+    })->all();
+} elseif (is_array($clinics)) {
+    // keep as is
+} else {
+    $clinics = [];
+}
 
-    $cities = array_unique(array_merge(['all'], array_map(fn($c) => $c['city'] ?? '', $clinics)));
-    $selectedCity = request()->get('city', 'all');
-    $showOpenOnly = request()->get('open', false);
+$cities = array_unique(array_merge(['all'], array_map(fn($c) => $c['city'] ?? '', $clinics)));
+$selectedCity = request()->get('city', 'all');
+$showOpenOnly = request()->get('open', false);
 
-    $filteredClinics = array_filter($clinics, function ($clinic) use ($selectedCity, $showOpenOnly) {
-        $cityMatch = $selectedCity === 'all' || ($clinic['city'] ?? '') === $selectedCity;
-        $openMatch = !$showOpenOnly || ($clinic['isOpen'] ?? false);
-        return $cityMatch && $openMatch;
-    });
+$filteredClinics = array_filter($clinics, function ($clinic) use ($selectedCity, $showOpenOnly) {
+    $cityMatch = $selectedCity === 'all' || ($clinic['city'] ?? '') === $selectedCity;
+    $openMatch = !$showOpenOnly || ($clinic['isOpen'] ?? false);
+    return $cityMatch && $openMatch;
+});
 @endphp
 
 
 <section id="clinics" class="py-16 lg:py-24 bg-muted/20">
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="text-center space-y-6 mb-12">
-            <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Our Clinic Locations</h2>
+            <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Your Healing Journey Begins Here - Choose
+            Your Nearest Branch</h2>
             <p class="text-lg text-muted-foreground   mx-auto leading-relaxed">
-                Find an Ayurvedic clinic near you. Each location offers the full range of traditional treatments with
-                experienced practitioners.
+                Find a Jivanam Wellness clinic near you and experience authentic Ayurvedic care close to home. Each center offers the complete range of traditional treatments, guided by our expert practitioners.
             </p>
         </div>
 
@@ -131,16 +131,16 @@
         <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($filteredClinics as $clinic)
                 @include('components.home.clinic-card', [
-                    'name' => $clinic['name'],
-                    'address' => $clinic['address'],
-                    'city' => $clinic['city'],
-                    'hours' => $clinic['hours'],
-                    'phone' => $clinic['phone'],
-                    'image' => $clinic['image'],
-                    'isOpen' => $clinic['isOpen'],
-                    'specialties' => $clinic['specialties'],
-                    'location_link' => $clinic['location_link'] ?? '',
-                ])
+        'name' => $clinic['name'],
+        'address' => $clinic['address'],
+        'city' => $clinic['city'],
+        'hours' => $clinic['hours'],
+        'phone' => $clinic['phone'],
+        'image' => $clinic['image'],
+        'isOpen' => $clinic['isOpen'],
+        'specialties' => $clinic['specialties'],
+        'location_link' => $clinic['location_link'] ?? '',
+    ])
             @empty
                 <div class="text-center py-12 col-span-full">
                     <p class="text-muted-foreground">No clinics found matching your criteria.</p>

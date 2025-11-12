@@ -20,7 +20,7 @@ class Therapy extends Model
         'image_alt',
         'gallery', // json
         'duration',
-        'tag',
+        'tags',
         'featured',
         'price',
         'price_currency',
@@ -35,10 +35,19 @@ class Therapy extends Model
         'benefits' => 'array',
         'contraindications' => 'array',
         'gallery' => 'array',
+        'tags' => 'array',
     ];
 
     public function testimonials()
     {
         return $this->hasMany(Testimonial::class);
     }
+    public function getTagsAttribute($value)
+    {
+        if (is_string($value)) {
+            return json_decode($value, true) ?: [];
+        }
+        return $value ?: [];
+    }
+
 }

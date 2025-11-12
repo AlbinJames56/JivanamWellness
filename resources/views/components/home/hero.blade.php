@@ -38,46 +38,51 @@
                                 <path d="M12 14s3.5 2.5 6 1c2.5-1.5 2-5 2-5s-2.5 1.5-4.5 1.5S12 14 12 14z"
                                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            Trusted Ayurveda
+                            Most Trusted Ayurveda Clinics in Coimbatore
                         </span>
                     </div>
 
                     <!-- CTA row (uses your btn classes so colors match the theme) -->
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <a class="btn-primary shadow-lg inline-flex items-center gap-2" href="#" data-booking
-                            data-treatment="{{ $therapy?->slug ?? ($treatments->first()?->slug ?? '') }}"
-                            aria-label="Book consultation" style="padding:10px 16px; font-weight:600;">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:16px;height:16px;">
-                                <path
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                            Book Consultation
-                        </a>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+  <a
+    class="btn-primary shadow-lg inline-flex items-center gap-2 w-full sm:w-auto justify-center"
+    href="#"
+    data-booking
+    data-treatment="{{ $therapy?->slug ?? ($treatments->first()?->slug ?? '') }}"
+    aria-label="Book consultation"
+    style="padding:10px 16px; font-weight:600;"
+  >
+    <!-- svg -->
+    Book Consultation
+  </a>
 
-                        <a href="/therapy" class="btn-secondary px-4 py-2 text-sm" style="font-weight:600;">
-                            Learn Treatments
-                        </a>
-                    </div>
+  <a
+    href="/therapy"
+    class="btn-secondary px-4 py-2 text-sm w-full sm:w-auto text-center"
+    style="font-weight:600;"
+  >
+    Learn Treatments
+  </a>
+</div>
+
                 </div>
 
                 <!-- Heading and description (use theme text classes) -->
                 <div style="margin-top:6px;">
                     <h1 class="hero-heading font-extrabold text-foreground leading-tight"
                         style="font-size: clamp(28px, 4vw, 44px); margin:0 0 8px 0;">
-                        Restore Balance with <span class="text-primary">Authentic Ayurveda</span>
+                         Rebalance Your Body, Mind<span class="text-primary">  & Spirit with Authentic Ayurveda</span>
                     </h1>
                     <p class="hero-description text-md text-muted-foreground" style="margin:0; max-width:720px;">
-                        Experience holistic healing through time-tested Ayurvedic treatments. Our certified
-                        practitioners combine ancient wisdom with modern care to restore your natural balance and
-                        vitality.
+                         Discover natural healing that blends time-tested Ayurvedic therapies with modern wellness care - crafted to restore harmony, relieve pain, and rejuvenate your vitality.
                     </p>
                 </div>
 
                 <!-- Feature pills: use theme classes for text & icons -->
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
-                    @php $features = ['Authentic Ayurvedic Treatments', 'Certified Practitioners', 'Personalized Care Plans', 'Natural Healing Methods']; @endphp
+                    @php $features = ['Certified Ayurvedic Experts', ' Personalized Treatment Plans', ' Natural Healing & Detox
+ Therapies', 'Holistic Wellness for Every 
+Lifestyle']; @endphp
                     @foreach ($features as $feature)
                         <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:9999px;"
                             class="bg-card/70 border border-border shadow-sm">
@@ -95,15 +100,15 @@
                 <div
                     style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.06); margin-top:18px;">
                     <div style="text-align:center;">
-                        <div class="text-2xl font-bold text-foreground">2,500+</div>
+                        <div class="text-2xl font-bold text-foreground"> 1 Lakh +</div>
                         <div class="text-xs text-muted-foreground mt-1">Happy Patients</div>
                     </div>
                     <div style="text-align:center;">
-                        <div class="text-2xl font-bold text-foreground">15+</div>
+                        <div class="text-2xl font-bold text-foreground">10 +</div>
                         <div class="text-xs text-muted-foreground mt-1">Years Experience</div>
                     </div>
                     <div style="text-align:center;">
-                        <div class="text-2xl font-bold text-foreground">95%</div>
+                        <div class="text-2xl font-bold text-foreground">90%</div>
                         <div class="text-xs text-muted-foreground mt-1">Success Rate</div>
                     </div>
                 </div>
@@ -120,7 +125,7 @@
                     .hero-img {
                         display: block;
                         width: 100%;
-                        height: clamp(420px, 56vh, 720px);
+                        height: 100%;
                         object-fit: cover;
                     }
 
@@ -169,18 +174,13 @@
                         }
 
                         .hero-floating .hero-floating-buttons {
-                            width: 100%;
-                            display: flex;
+                           
+                            
                             gap: 8px;
-                            flex-direction: column;
+                             
                             /* stack buttons */
                         }
-
-                        .hero-floating .hero-floating-buttons>* {
-                            width: 100%;
-                            display: inline-flex;
-                            justify-content: center;
-                        }
+ 
 
                         /* move floating card in a bit so image remains visible */
                         .hero-floating-wrapper {
@@ -199,8 +199,8 @@
                 <div class="hero-floating-wrapper" style="position:absolute; left:24px; right:24px; bottom:24px;">
                     <div class="hero-floating">
                         <div class="hero-floating-text">
-                            <p class="text-foreground" style="margin:0; font-weight:600;">
-                                Discover your dosha and personalized wellness plan
+                            <p class="text-white" style="margin:0; font-weight:600;">
+                                Take your first step toward balance and lasting wellness.
                             </p>
                         </div>
 

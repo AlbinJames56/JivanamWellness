@@ -27,8 +27,9 @@
                 Authentic Ayurvedic Therapies
             </h2>
             <p class="text-lg text-muted-foreground mx-auto leading-relaxed">
-                Discover our comprehensive range of traditional therapies, each designed to restore
-                balance and promote natural healing according to your unique constitution.
+                Discover our wide range of time-tested Ayurvedic therapies - each crafted to restore
+ balance, detoxify the body, and promote natural healing according to your unique
+ dosha and wellness needs
             </p>
         </div>
 
