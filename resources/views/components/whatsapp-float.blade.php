@@ -1,10 +1,8 @@
 {{-- resources/views/components/whatsapp-float.blade.php --}}
 @php
-    // WhatsApp number (international, no +)
-    $waPhone = $phone ?? '919876543210';
-    $prefill = urlencode($message ?? 'Hello! I would like to book a consultation.');
+    $waPhone = $phone ?? '918220503388';
+    $prefill = $message ?? 'Hello! I would like to book a consultation.';
 @endphp
-
 <!-- Inline styles so they apply immediately where the component is included -->
 <style>
     /* Container: fixed bottom-right, stacked vertically */
@@ -166,7 +164,7 @@
 
     <!-- main WhatsApp button -->
     <button type="button" id="wa-btn" class="wa-button" aria-label="Open WhatsApp chat" title="WhatsApp"
-        onclick="openWhatsApp(event, '{{ $waPhone }}', '{{ $prefill }}')">
+       onclick="openWhatsAppEncoded(event, '{{ $waPhone }}', '{{ $prefill }}')">
         <i class="fa-brands fa-whatsapp  l" aria-hidden="true" style="color: inherit; font-size:2rem;"></i>
     </button>
 
@@ -177,25 +175,16 @@
 </div>
 
 <script>
-    function openWhatsApp(e, phone, prefill) {
-        if (e) e.preventDefault();
-        phone = ('' + phone).replace(/\D+/g, '');
-        prefill = prefill || '';
-        var isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-        var url = isMobile
-            ? 'whatsapp://send?phone=' + encodeURIComponent(phone) + '&text=' + encodeURIComponent(prefill)
-            : 'https://wa.me/' + encodeURIComponent(phone) + '?text=' + encodeURIComponent(prefill);
-        try {
-            if (isMobile) {
-                window.location.href = url;
-            } else {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        } catch (err) {
-            window.open('https://wa.me/' + encodeURIComponent(phone) + '?text=' + encodeURIComponent(prefill), '_blank', 'noopener,noreferrer');
-        }
-    }
-
+  function openWhatsAppEncoded(e, phone, preEncodedPrefill) {
+    if (e) e.preventDefault();
+    phone = ('' + phone).replace(/\D+/g, '');
+    var isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    // DO NOT call encodeURIComponent(preEncodedPrefill) here — it's already encoded
+    var url = isMobile
+        ? 'whatsapp://send?phone=' + encodeURIComponent(phone) + '&text=' + preEncodedPrefill
+        : 'https://wa.me/' + encodeURIComponent(phone) + '?text=' + preEncodedPrefill;
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
     // Move the fab to body to avoid being clipped by transformed ancestors
     (function ensureFabInBody() {
         try {

@@ -38,7 +38,7 @@
 
             {{-- Desktop Actions --}}
             <div class="hidden lg:flex items-center space-x-3 flex-shrink-0">
-                <a href="tel:+919876543210"
+                <a href="tel:+918220503388"
                     class="btn-secondary flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-105">
                     <i class="fa-solid fa-phone text-xs"></i>
                     Call Us
@@ -96,7 +96,7 @@
 
                 {{-- Mobile Actions --}}
                 <div class="pt-4 border-t border-gray-200 space-y-3">
-                    <a href="tel:+919876543210"
+                    <a href="tel:+918220503388"
                         class="w-full btn-secondary flex items-center justify-center gap-2 px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 active:scale-95">
                         <i class="fa-solid fa-phone"></i>
                         Call Us Now

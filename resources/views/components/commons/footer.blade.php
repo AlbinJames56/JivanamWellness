@@ -11,13 +11,62 @@
   ];
 
   $contactInfo = [
-     
+
     ['icon' => 'phone', 'label' => 'Call Us', 'value' => '+91 98765 43210'],
     ['icon' => 'mail', 'label' => 'Email Us', 'value' => 'hello@ayurveda.com'],
   ];
 @endphp
 
-<footer class="bg-primary text-primary-foreground relative overflow-hidden">
+<!-- local footer color overrides (light theme for footer only) -->
+<!-- local footer color overrides (light greenish theme for footer only) -->
+<style>
+  footer.bg-primary {
+    /* 🌿 Theme palette */
+    --primary: #f2f9f4;
+    /* soft greenish white background */
+    --primary-foreground: #0a2e1b;
+    /* dark green text */
+    --secondary: #3cb371;
+    /* medium green for small highlights */
+    --accent: #86efac;
+    /* light mint accent line */
+    --border: #d6e9dc;
+    /* subtle divider color */
+  }
+
+  /* make all white text adopt new dark color */
+  footer.bg-primary .text-white,
+  footer.bg-primary .text-white\/90,
+  footer.bg-primary .text-white\/80 {
+    color: var(--primary-foreground) !important;
+    opacity: 1 !important;
+  }
+
+  /* adjust background overlays for light mode */
+  footer.bg-primary .bg-white\/10 {
+    background-color: rgba(10, 46, 27, 0.06) !important;
+    /* faint green tint */
+  }
+
+  footer.bg-primary .bg-white\/5 {
+    background-color: rgba(10, 46, 27, 0.04) !important;
+  }
+
+  footer.bg-primary .w-1\.5.h-1\.5 {
+    background: var(--secondary) !important;
+  }
+
+  footer.bg-primary a:hover {
+    color: var(--secondary) !important;
+  }
+
+  footer.bg-primary .bg-white {
+    background-color: #ffffff !important;
+  }
+</style>
+
+<footer class="bg-primary text-primary-foreground relative overflow-hidden"
+  style="--primary:#f8fafc; --primary-foreground:#0f172a; --secondary:#34d399; --accent:#f59e0b; --border:#e6e7ea;">
   <div class="max-w-[1200px] mx-auto px-6 py-8">
     <!-- Top row (flex columns) -->
     <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8 gap-6">
@@ -75,12 +124,12 @@
           <!-- Partner Logo -->
           <div class="lg:w-7/12">
             <div class="hidden lg:block h-0.5 w-12 bg-accent mb-3"></div>
-            <h4 class="font-bold text-sm text-white mb-3">In Partnership With</h4>
-            <div class="bg-white/10 rounded-lg p-4 flex items-center justify-center ">
+
+            <div class="bg-white/10 rounded-lg p-1 flex items-center justify-center ">
               <div class="text-center">
                 <img src="{{ asset('images/kotakllogo.jpg') }}" alt="Kotak Partner"
-                  class="mx-auto max-w-[330px] h-auto mb-2" />
-                
+                  class="mx-auto max-w-[330px] h-auto    rounded-lg" />
+
               </div>
             </div>
           </div>
