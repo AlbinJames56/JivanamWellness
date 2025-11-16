@@ -12,8 +12,8 @@
 
   $contactInfo = [
 
-    ['icon' => 'phone', 'label' => 'Call Us', 'value' => '+91 98765 43210'],
-    ['icon' => 'mail', 'label' => 'Email Us', 'value' => 'hello@ayurveda.com'],
+    ['icon' => 'phone', 'label' => 'Call Us', 'value' => '+91 82 2050 3388'],
+    ['icon' => 'mail', 'label' => 'Email Us', 'value' => 'jeevanamwellnessdigital@gmail.com'],
   ];
 @endphp
 

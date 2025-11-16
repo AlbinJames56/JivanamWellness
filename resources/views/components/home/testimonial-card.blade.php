@@ -8,6 +8,7 @@
   $treatment = $treatment ?? null;
   $isVideo = (bool) ($isVideo ?? false);
   $videoThumbnail = $videoThumbnail ?? null;
+
 @endphp
 
 <div
@@ -27,7 +28,7 @@
     </div>
   @endif
 
-  <div class="flex-1 min-h-0 space-y-4">
+  <div class="flex-1 min-h-0  ">
     {{-- Rating --}}
     <div class="flex items-center gap-1">
       @for ($i = 0; $i < 5; $i++)
@@ -44,7 +45,7 @@
     </div>
 
     {{-- Quote --}}
-    <blockquote class="text-foreground leading-relaxed italic" tabindex="0"
+    <blockquote class="text-foreground leading-relaxed italic  mb-4" tabindex="0"
       style="max-height:180px; overflow-y:auto; -webkit-overflow-scrolling:touch; white-space:pre-wrap; padding-right:6px;">
       "{{ $text }}"
     </blockquote>
@@ -58,29 +59,44 @@
   </div>
 
   {{-- Footer: avatar + name --}}
-  <div class="flex items-center gap-3 pt-6 border-t border-border mt-2">
-    {{-- Avatar container: image (if available) else FontAwesome icon (with onerror fallback) --}}
-    <div class="w-12 h-12 rounded-full overflow-hidden bg-muted/6 flex items-center justify-center flex-shrink-0"
-      aria-hidden="true">
-      {{-- If avatar provided, show image and have a JS onerror fallback to reveal the icon --}}
+  <div class="flex items-center gap-3 pt-6 border-t border-border ">
+    @php
+      // Inline hex palette (guaranteed to render). Adjust colors as you like.
+      $initialHexColors = [
+        '#059669', // emerald-600
+        '#ef4444', // rose-500
+        '#4f46e5', // indigo-600
+        '#ca8a04', // yellow-600 (darker)
+        '#ec4899', // pink-500
+        '#0ea5e9', // sky-500
+        '#84cc16', // lime-600
+        '#7c3aed', // violet-600
+        '#f97316', // orange-500
+        '#c026d3', // fuchsia-600
+      ];
+
+      $trimmedName = trim((string) $name);
+      $initial = $trimmedName !== '' ? mb_strtoupper(mb_substr($trimmedName, 0, 1)) : '?';
+      $colorIndex = $trimmedName !== '' ? (int) (crc32($trimmedName) % count($initialHexColors)) : 0;
+      $bgHex = $initialHexColors[$colorIndex];
+    @endphp
+
+    <div class="w-12 h-12 relative rounded-full overflow-hidden flex-shrink-0" aria-hidden="false"
+      aria-label="{{ $name ?: 'User' }}">
+      {{-- Initial layer: always present; inline background ensures color is visible --}}
+      <div class="absolute inset-0 flex items-center justify-center text-white font-medium text-lg"
+        style="background: {{ $bgHex }};">
+        {{ $initial }}
+      </div>
+
+      {{-- Avatar image overlays the initial. If it fails to load, hide it to reveal the initial. --}}
       @if(!empty($avatar))
-        <img src="{{ $avatar }}" alt="{{ $name }}" class="w-full h-full object-cover" onerror="
-                      this.style.display = 'none';
-                      const fallback = this.parentNode.querySelector('.avatar-fallback');
-                      if (fallback) fallback.style.display = 'flex';
-                    " />
-        {{-- hidden by default when avatar exists; visible if image fails --}}
-        <div class="avatar-fallback w-full h-full flex items-center justify-center text-muted-foreground"
-          style="display:none">
-          <i class="fa-solid fa-user fa-lg" aria-hidden="true"></i>
-        </div>
-      @else
-        {{-- No avatar set: show icon directly --}}
-        <div class="w-full h-full flex items-center justify-center text-muted-foreground">
-          <i class="fa-solid fa-user fa-lg" aria-hidden="true"></i>
-        </div>
+        <img src="{{ $avatar }}" alt="{{ $name ?: 'User avatar' }}" class="absolute inset-0 w-full h-full object-cover"
+          onerror="this.style.display='none';" onload="this.style.opacity=1;"
+          style="opacity:0; transition:opacity .18s ease-in;" />
       @endif
     </div>
+
 
     <div>
       <div class="font-medium text-foreground">{{ $name }}</div>

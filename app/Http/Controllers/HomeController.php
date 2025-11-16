@@ -48,8 +48,7 @@ class HomeController extends Controller
 
         try {
             $testimonials = Testimonial::query()
-                ->orderByDesc('created_at')
-                ->limit(3)
+                ->orderByDesc('created_at') 
                 ->get();
         } catch (\Throwable $e) {
             $testimonials = collect();

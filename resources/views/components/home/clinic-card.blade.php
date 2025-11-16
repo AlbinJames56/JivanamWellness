@@ -93,11 +93,11 @@ if (!empty($image)) {
             </div>
         @endif
 
-        <div class="absolute top-3 left-3">
+        <!-- <div class="absolute top-3 left-3">
             <span class="badge rounded-3xl py-1 px-2 {{ $isOpen ? 'bg-green-500 text-white' : 'bg-gray-500 text-white' }}">
                 {{ $isOpen ? 'Open Now' : 'Closed' }}
             </span>
-        </div>
+        </div> -->
     </div>
 
     <div class="p-6 space-y-4 flex-1 flex flex-col">
