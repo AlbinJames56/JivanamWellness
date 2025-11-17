@@ -35,7 +35,7 @@
     }
 @endphp
 
-<section id="testimonials" class="py-16 lg:py-24 bg-background">
+<section id="testimonials" class="pb-16 lg:pb-24 bg-background">
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="text-center space-y-6 mb-16">
             <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">What Our Patients Say</h2>

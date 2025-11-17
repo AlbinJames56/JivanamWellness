@@ -5,10 +5,10 @@
     @php
         // Page data (replace with DB data later via controller/admin panel)
         $stats = [
-        ['number' => '10+', 'label' => 'Years Experience', 'icon' => 'clock'],
-        ['number' => '1 Lakh+', 'label' => 'Happy Patients', 'icon' => 'heart'],
-        ['number' => '25+', 'label' => 'Expert Practitioners', 'icon' => 'users'],
-        ['number' => '90%', 'label' => 'Success Rate', 'icon' => 'award'],
+            ['number' => '10+', 'label' => 'Years Experience', 'icon' => 'clock'],
+            ['number' => '1 Lakh+', 'label' => 'Happy Patients', 'icon' => 'heart'],
+            ['number' => '25+', 'label' => 'Expert Practitioners', 'icon' => 'users'],
+            ['number' => '90%', 'label' => 'Success Rate', 'icon' => 'award'],
         ];
 
         $values = [
@@ -272,9 +272,13 @@
                                     <div><strong>Specialization:</strong> {{ $m->specialization ?? '-' }}</div>
                                     <div><strong>Experience:</strong> {{ $m->experience ?? '-' }}</div>
                                 </div>
-                                <a href="#booking" class="btn-secondary inline-flex items-center justify-center w-full">
+                                <button type="button"
+                                    class="btn-secondary inline-flex items-center justify-center w-full px-3 py-2 rounded-md"
+                                    data-booking data-member-id="{{ $m->id ?? '' }}" data-member-name="{{ e($m->name) }}"
+                                    data-source="team-card" aria-label="Book consultation with {{ e($m->name) }}">
                                     Book Consultation
-                                </a>
+                                </button>
+
                             </div>
                         </div>
                     @endforeach
@@ -308,36 +312,36 @@
 
         {{-- CTA / Booking Section --}}
         <!-- <section id="booking" class="py-16 lg:py-24 bg-gradient-to-r from-primary to-secondary">
-                                <div class="max-w-[1100px] mx-auto px-5 text-center">
-                                    <div class="space-y-6 text-white">
-                                        <h2 class="text-3xl lg:text-4xl font-semibold">Ready to Start Your Healing Journey?</h2>
-                                        <p class="text-xl text-white/90   mx-auto leading-relaxed">
-                                            Experience the transformative power of authentic Ayurvedic healing. Let our expert practitioners
-                                            guide you toward optimal health and wellness.
-                                        </p>
+                                                    <div class="max-w-[1100px] mx-auto px-5 text-center">
+                                                        <div class="space-y-6 text-white">
+                                                            <h2 class="text-3xl lg:text-4xl font-semibold">Ready to Start Your Healing Journey?</h2>
+                                                            <p class="text-xl text-white/90   mx-auto leading-relaxed">
+                                                                Experience the transformative power of authentic Ayurvedic healing. Let our expert practitioners
+                                                                guide you toward optimal health and wellness.
+                                                            </p>
 
-                                        {{-- Simple booking form (POST to route you can create later) --}}
-                                        <form action="{{ route('appointments.store') ?? '#' }}" method="POST"
-                                            class="  mx-auto grid sm:grid-cols-2 gap-4">
-                                            @csrf
-                                            <input name="name" placeholder="Your name" required class="px-4 py-3 rounded-lg border" />
-                                            <input name="phone" placeholder="Phone or WhatsApp" required class="px-4 py-3 rounded-lg border" />
-                                            <input name="email" type="email" placeholder="Email (optional)"
-                                                class="px-4 py-3 rounded-lg sm:col-span-2 border" />
-                                            <textarea name="notes" placeholder="Tell us briefly about your concern (optional)"
-                                                class="px-4 py-3 rounded-lg sm:col-span-2 border"></textarea>
-                                            <div class="flex justify-center sm:col-span-2 ">
-                                                <button type="submit"
-                                                    class="btn-primary w-1/3 sm:col-span-2 inline-flex items-center justify-center gap-2border">
-                                                    {{-- calendar svg --}}
-                                                   <i class="fa-solid fa-clipboard-question me-1" ></i>
-                                                    Send a Query
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </section> -->
+                                                            {{-- Simple booking form (POST to route you can create later) --}}
+                                                            <form action="{{ route('appointments.store') ?? '#' }}" method="POST"
+                                                                class="  mx-auto grid sm:grid-cols-2 gap-4">
+                                                                @csrf
+                                                                <input name="name" placeholder="Your name" required class="px-4 py-3 rounded-lg border" />
+                                                                <input name="phone" placeholder="Phone or WhatsApp" required class="px-4 py-3 rounded-lg border" />
+                                                                <input name="email" type="email" placeholder="Email (optional)"
+                                                                    class="px-4 py-3 rounded-lg sm:col-span-2 border" />
+                                                                <textarea name="notes" placeholder="Tell us briefly about your concern (optional)"
+                                                                    class="px-4 py-3 rounded-lg sm:col-span-2 border"></textarea>
+                                                                <div class="flex justify-center sm:col-span-2 ">
+                                                                    <button type="submit"
+                                                                        class="btn-primary w-1/3 sm:col-span-2 inline-flex items-center justify-center gap-2border">
+                                                                        {{-- calendar svg --}}
+                                                                       <i class="fa-solid fa-clipboard-question me-1" ></i>
+                                                                        Send a Query
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </section> -->
 
         <x-contact.BookFreeConsultation />
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TeamMember;
 use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Clinics;
@@ -45,6 +46,18 @@ class HomeController extends Controller
             $articles = collect();
             \Log::error('Failed to load Article: ' . $e->getMessage());
         }
+        try {
+            // fetch up to 6 active team members, ordered by sort_order (adjust as needed)
+            $teamMembers = TeamMember::query()
+                ->where('active', true)
+                ->orderBy('sort_order')    // fallback ordering
+                ->orderByDesc('featured')  // featured first if you want
+                ->limit(6)
+                ->get();
+        } catch (\Throwable $e) {
+            $teamMembers = collect();
+            \Log::error('Failed to load TeamMember: ' . $e->getMessage());
+        }
 
         try {
             $testimonials = Testimonial::query()
@@ -61,6 +74,7 @@ class HomeController extends Controller
             'clinics' => $clinics ?? collect(),
             'articles' => $articles ?? collect(),
             'testimonials' => $testimonials ?? collect(),
+            'teamMembers' => $teamMembers ?? collect(),
         ]);
     }
 }
