@@ -1,8 +1,8 @@
-<section id="team" class="py-16   bg-background">
+<section id="team" class="py-16 bg-background">
     <div class="max-w-[1100px] mx-auto px-5">
-        <div class="text-center space-y-6 mb-12">
+        <div class="text-center space-y-6 mb-12" data-aos="fade-up" data-aos-delay="80">
             <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Our Expert Therapists</h2>
-            <p class="text-lg text-muted-foreground mx-auto leading-relaxed  ">
+            <p class="text-lg text-muted-foreground mx-auto leading-relaxed">
                 Meet the experienced practitioners who guide our therapies and personalised care plans.
             </p>
         </div>
@@ -12,7 +12,8 @@
                 <!-- Horizontal track -->
                 <div id="team-slider" class="team-slider flex gap-6 overflow-x-auto scroll-snap-x">
                     @forelse($teamMembers as $member)
-                        <div class="team-item-wrapper p-0">
+                        <div class="team-item-wrapper p-0" data-aos="fade-up" data-aos-delay="{{ $loop->index * 80 }}"
+                            data-aos-anchor-placement="top-bottom">
                             @include('components.home.team-card', ['m' => $member])
                         </div>
                     @empty
@@ -26,17 +27,17 @@
             <!-- Nav -->
             <div class="flex items-center justify-center gap-4 mt-8">
                 <button id="team-prev" type="button" class="rounded-full border border-border hover:bg-primary/10 p-2"
-                    aria-label="Previous team">
+                    aria-label="Previous team" data-aos="fade-up" data-aos-delay="120">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
 
-                <div id="team-dots" class="flex gap-2"></div>
+                <div id="team-dots" class="flex gap-2" aria-hidden="false"></div>
 
                 <button id="team-next" type="button" class="rounded-full border border-border hover:bg-primary/10 p-2"
-                    aria-label="Next team">
+                    aria-label="Next team" data-aos="fade-up" data-aos-delay="120">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -44,21 +45,20 @@
                 </button>
             </div>
         </div>
-
     </div>
 </section>
+
 <style>
-    /* track */
+    /* same CSS as before */
     #team-slider {
         display: flex;
         gap: 1.5rem;
-        /* same as gap-6 (24px) in Tailwind; adjust if you want different spacing */
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        /* firefox */
         padding-bottom: 1px;
+        scroll-behavior: smooth;
     }
 
     #team-slider::-webkit-scrollbar {
@@ -71,12 +71,6 @@
         box-sizing: border-box;
     }
 
-    /* smooth programmatic scroll */
-    #team-slider {
-        scroll-behavior: smooth;
-    }
-
-    /* focus outlines for accessibility */
     #team-prev:focus,
     #team-next:focus,
     #team-dots button:focus {
@@ -84,6 +78,7 @@
         outline-offset: 4px;
     }
 </style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const track = document.getElementById('team-slider');
@@ -101,14 +96,9 @@
         function getGapPx() {
             const gapValue = getComputedStyle(track).gap || getComputedStyle(track).columnGap || '24px';
             if (gapValue.endsWith('px')) return parseFloat(gapValue);
-            // compute with temporary element for other units
             const el = document.createElement('div');
-            el.style.width = gapValue;
-            el.style.position = 'absolute';
-            document.body.appendChild(el);
-            const px = el.getBoundingClientRect().width || 24;
-            document.body.removeChild(el);
-            return px;
+            el.style.width = gapValue; el.style.position = 'absolute'; document.body.appendChild(el);
+            const px = el.getBoundingClientRect().width || 24; document.body.removeChild(el); return px;
         }
 
         function computeItemsPerView() {
@@ -136,6 +126,12 @@
             if (currentPage >= pageCount) currentPage = pageCount - 1;
             buildDots();
             scrollToPage(currentPage, true);
+
+            // refresh AOS so newly-sized elements animate correctly
+            if (window.AOS && typeof AOS.refresh === 'function') {
+                // small timeout to let layout settle
+                setTimeout(() => AOS.refresh(), 40);
+            }
         }
 
         function buildDots() {
@@ -157,11 +153,9 @@
             if (!dotsContainer) return;
             Array.from(dotsContainer.children).forEach((dot, i) => {
                 if (i === currentPage) {
-                    dot.classList.add('bg-primary');
-                    dot.classList.remove('bg-border');
+                    dot.classList.add('bg-primary'); dot.classList.remove('bg-border');
                 } else {
-                    dot.classList.remove('bg-primary');
-                    dot.classList.add('bg-border');
+                    dot.classList.remove('bg-primary'); dot.classList.add('bg-border');
                 }
             });
         }
@@ -191,7 +185,6 @@
         if (nextBtn) nextBtn.addEventListener('click', nextPage);
         if (prevBtn) prevBtn.addEventListener('click', prevPage);
 
-        // sync currentPage while user scrolls
         let scrollDebounce = null;
         track.addEventListener('scroll', () => {
             clearTimeout(scrollDebounce);
@@ -206,20 +199,16 @@
             }, 80);
         });
 
-        // images: wait for them to load, then size
         function addImageListeners() {
             const imgs = Array.from(track.querySelectorAll('img'));
             let remaining = imgs.length;
-            if (!remaining) {
-                applyItemSizing();
-                return;
-            }
+            if (!remaining) { applyItemSizing(); return; }
             imgs.forEach(img => {
-                if (img.complete) { remaining--; if (remaining === 0) applyItemSizing(); return; }
+                if (img.complete) { remaining--; if (remaining === 0) { applyItemSizing(); } return; }
                 img.addEventListener('load', () => { remaining--; if (remaining === 0) applyItemSizing(); });
                 img.addEventListener('error', () => { remaining--; if (remaining === 0) applyItemSizing(); });
             });
-            setTimeout(() => applyItemSizing(), 300); // fallback
+            setTimeout(() => applyItemSizing(), 300);
         }
 
         window.addEventListener('resize', () => {
@@ -230,7 +219,12 @@
         // init
         addImageListeners();
 
-        // debugging helper
+        // ensure AOS redeploys after initial render
+        if (window.AOS && typeof AOS.refresh === 'function') {
+            setTimeout(() => AOS.refresh(), 120);
+        }
+
+        // debug handle
         window.__teamCarousel = { itemsCount: () => items.length, itemsPerView: () => itemsPerView, pageCount: () => pageCount, currentPage: () => currentPage, recompute: () => applyItemSizing() };
     });
 </script>

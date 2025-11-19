@@ -9,10 +9,13 @@
   $author = $author ?? '';
   $authorAvatar = $authorAvatar ?? '';
   $postUrl = $postUrl ?? url('/blog');
+  $aos_delay = $aos_delay ?? 0;
 @endphp
 
 <article
-  class="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+  class="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+  data-aos="fade-up"
+  data-aos-delay="{{ $aos_delay }}">
   <a href="{{ $postUrl }}" class="block group" aria-label="Read article: {{ $title }}">
     <div class="relative">
       @if(!empty($image))

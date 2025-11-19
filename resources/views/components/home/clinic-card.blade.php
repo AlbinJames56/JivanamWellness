@@ -8,6 +8,7 @@
     'isOpen' => false,
     'specialties' => [],
     'location_link' => '',
+    'aos_delay' => 0,
 ])
 
 @php
@@ -82,7 +83,8 @@ if (!empty($image)) {
 }
 @endphp
 
-<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
+<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full" data-aos="fade-up"
+  data-aos-delay="{{ (int) $aos_delay }}">
     <div class="relative flex-shrink-0">
         @if($imgUrl)
             <img src="{{ $imgUrl }}" alt="{{ $name }} clinic"
