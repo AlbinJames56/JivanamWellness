@@ -28,34 +28,73 @@ class TestimonialResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
+            // Name always required
             TextInput::make('name')
                 ->required()
                 ->maxLength(255),
-            TextInput::make('location')->maxLength(255),
+
+            TextInput::make('location')
+                ->maxLength(255)
+                ->visible(fn($get) => !$get('is_video')),
+
+            // Rating is optional for videos, required for text testimonials (adjust as needed)
             TextInput::make('rating')
                 ->label('Rating (1-5)')
                 ->numeric()
                 ->minValue(1)
                 ->maxValue(5)
-                ->default(5),
+                ->default(5)
+                ->required(fn($get) => !$get('is_video')),
+            // Toggle: reactive so dependent fields update instantly
+            Toggle::make('is_video')
+                ->label('Is Video')
+                ->inline(false)
+                ->reactive(),
             Select::make('therapy_id')
                 ->label('Therapy')
-                ->options(
-                    fn() => Therapy::orderBy('title')
-                        ->pluck('title', 'id')
-                        ->toArray()
-                )
+                ->options(fn() => Therapy::orderBy('title')->pluck('title', 'id')->toArray())
                 ->searchable()
-                ->nullable(),
+                ->nullable()
+                ->visible(fn($get) => !$get('is_video')),
+
+            // Avatar: optional for both, but hide if you prefer for pure video entries
             FileUpload::make('avatar')
                 ->label('Avatar')
                 ->image()
-                ->directory('testimonials')
+                ->directory('testimonials/avatars')
                 ->disk('public')
-                ->nullable(),
+                ->nullable()
+                ->visible(fn($get) => !$get('is_video')),
+
+            // Text: only for non-video testimonials; required when not a video
             Textarea::make('text')
                 ->rows(4)
-                ->required(),
+                ->required(fn($get) => !$get('is_video'))
+                ->visible(fn($get) => !$get('is_video')),
+
+
+
+            // Video file: visible + required when is_video = true
+            FileUpload::make('video')
+                ->label('Video file (mp4/webm)')
+                ->directory('testimonials/videos')
+                ->disk('public')
+                ->maxSize(51200) // 50 MB - adjust as needed
+                ->acceptedFileTypes(['video/mp4', 'video/webm'])
+                ->nullable()
+                ->visible(fn($get) => (bool) $get('is_video'))
+                ->required(fn($get) => (bool) $get('is_video')),
+
+            // Video thumbnail: visible + required when is_video = true (optional if you prefer)
+            FileUpload::make('video_thumbnail')
+                ->label('Video thumbnail (image)')
+                ->directory('testimonials/video_thumbs')
+                ->disk('public')
+                ->image()
+                ->nullable()
+                ->visible(fn($get) => (bool) $get('is_video'))
+                ->required(fn($get) => (bool) $get('is_video')),
+
             Toggle::make('featured')->inline(false),
         ]);
     }
@@ -67,16 +106,27 @@ class TestimonialResource extends Resource
                 ImageColumn::make('avatar')
                     ->rounded()
                     ->label('Avatar'),
+
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
+
+                // Show therapy title if present
                 TextColumn::make('therapy.title')
                     ->label('Therapy')
                     ->sortable()
                     ->toggleable(),
+
                 TextColumn::make('rating')
                     ->label('Rating')
                     ->sortable(),
+
+                // New: show whether this is a video testimonial
+                TextColumn::make('is_video')
+                    ->label('Video?')
+                    ->formatStateUsing(fn($state) => $state ? 'Yes' : 'No')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
                     ->dateTime('M d, Y')
                     ->sortable(),
@@ -88,11 +138,12 @@ class TestimonialResource extends Resource
             ->bulkActions([DeleteBulkAction::make()]);
     }
 
+
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            //
+        ];
     }
 
     public static function getPages(): array

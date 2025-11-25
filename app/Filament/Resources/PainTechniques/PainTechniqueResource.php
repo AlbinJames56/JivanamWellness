@@ -31,57 +31,56 @@ class PainTechniqueResource extends Resource
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->reactive()
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Str::slug($state))),
+                    ->afterStateUpdated(fn($state, callable $set) => $set('slug', \Str::slug($state))),
                 Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true),
             ])->columns(2),
-             Section::make(' ')->schema([
+            Section::make(' ')->schema([
                 Forms\Components\FileUpload::make('image')->image()->directory('pain-techniques')->disk('public'),
                 Forms\Components\RichEditor::make('more_info')->nullable(),
-                Forms\Components\Textarea::make('description') ,  Forms\Components\TagsInput::make('benefits')
-    ->label('Benefits')
-    ->placeholder('Add a benefit and press Enter')
-          // cap at 5
-    ->required(false)
-    ->reactive()
-    ->columnSpan('full'),
+                Forms\Components\Textarea::make('description'),
+                Forms\Components\TagsInput::make('benefits')
+                    ->label('Benefits')
+                    ->placeholder('Add a benefit and press Enter')
+                    // cap at 5
+                    ->required(false)
+                    ->reactive()
+                    ->columnSpan('full'),
             ])->columns(1),
             Section::make(' ')->schema([
 
                 Forms\Components\TextInput::make('duration')->placeholder('e.g. 30–60 min'),
                 Forms\Components\TextInput::make('price')->numeric()->nullable(),
-                Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)                ->nullable(),
-                Forms\Components\Select::make('category')
-                    ->options([
-                        'massage' => 'Massage',
-                        'detox' => 'Detox',
-                        'therapy' => 'Therapy',
-                        'other' => 'Other',
-                    ])
-                    ->nullable(),
-                Forms\Components\Toggle::make('featured'),
-                Forms\Components\Toggle::make('available')->default(true),
-           ])->columns(2),
+                Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)->nullable(),
+                Forms\Components\Select::make('categories')
+                    ->label('Categories')
+                    ->options(PainTechnique::categories())
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Select one or more categories')
+                    ->columnSpan(1),
+            ])->columns(2),
         ])->columns(1);
     }
 
     public static function table(Tables\Table $table): Tables\Table
-{
-    return $table
-        ->columns([
-            Tables\Columns\ImageColumn::make('image')->disk('public')->rounded(),
-            Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
-            Tables\Columns\TextColumn::make('category')->sortable(),
-            Tables\Columns\BooleanColumn::make('featured'),
-            Tables\Columns\BooleanColumn::make('available'),
-            Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
-        ])
-        ->actions([
-             EditAction::make(),
-        ])
-        ->bulkActions([
-            DeleteBulkAction::make(),
-        ]);
-}
+    {
+        return $table
+            ->columns([
+                Tables\Columns\ImageColumn::make('image')->disk('public')->rounded(),
+                Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('category')->sortable(),
+                Tables\Columns\BooleanColumn::make('featured'),
+                Tables\Columns\BooleanColumn::make('available'),
+                Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
+            ])
+            ->actions([
+                EditAction::make(),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make(),
+            ]);
+    }
 
 
     public static function getPages(): array

@@ -31,6 +31,8 @@ Route::get('/pain-management', [PainTechniqueController::class, 'index'])->name(
     'pain-management'
 ); // Clinics page
 Route::get('/clinics', [ClinicsController::class, 'index'])->name('clinics');
+// All doctors page
+Route::get('/doctors', [App\Http\Controllers\DoctorController::class, 'index'])->name('doctors.index');
 
 // About page
 Route::get('/about', [TeamMemberController::class, 'index'])->name('about');

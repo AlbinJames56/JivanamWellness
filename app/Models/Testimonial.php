@@ -17,6 +17,15 @@ class Testimonial extends Model
         'text',
         'therapy_id',
         'avatar',
+        'is_video',
+        'video',
+        'video_thumbnail',
+    ];
+
+    // Optionally cast
+    protected $casts = [
+        'is_video' => 'boolean',
+        'rating' => 'integer',
     ];
 
     public function therapy()
