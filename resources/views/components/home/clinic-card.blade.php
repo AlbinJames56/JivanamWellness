@@ -8,6 +8,7 @@
     'isOpen' => false,
     'specialties' => [],
     'location_link' => '',
+    'aos_delay' => 0,
 ])
 
 @php
@@ -82,7 +83,8 @@ if (!empty($image)) {
 }
 @endphp
 
-<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
+<div class="group bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full" data-aos="fade-up"
+  data-aos-delay="{{ (int) $aos_delay }}">
     <div class="relative flex-shrink-0">
         @if($imgUrl)
             <img src="{{ $imgUrl }}" alt="{{ $name }} clinic"
@@ -93,11 +95,11 @@ if (!empty($image)) {
             </div>
         @endif
 
-        <div class="absolute top-3 left-3">
+        <!-- <div class="absolute top-3 left-3">
             <span class="badge rounded-3xl py-1 px-2 {{ $isOpen ? 'bg-green-500 text-white' : 'bg-gray-500 text-white' }}">
                 {{ $isOpen ? 'Open Now' : 'Closed' }}
             </span>
-        </div>
+        </div> -->
     </div>
 
     <div class="p-6 space-y-4 flex-1 flex flex-col">

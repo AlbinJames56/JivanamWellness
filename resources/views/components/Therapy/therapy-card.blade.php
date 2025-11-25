@@ -1,27 +1,44 @@
 {{-- resources/views/components/Therapy/therapy-card.blade.php --}}
 @props(['therapy'])
 
+@php
+    // Normalize tags to a plain PHP array of strings
+    $rawTags = $therapy->tags ?? [];
+    if ($rawTags instanceof \Illuminate\Support\Collection) {
+        $tags = $rawTags->all();
+    } elseif (is_string($rawTags)) {
+        // Split on commas/semicolons/pipes, trim, and drop empties
+        $tags = array_values(array_filter(array_map(
+            fn($t) => trim($t),
+            preg_split('/[,;|]+/', $rawTags)
+        )));
+    } elseif (is_array($rawTags)) {
+        $tags = array_values(array_filter(array_map('trim', $rawTags)));
+    } else {
+        $tags = [];
+    }
+    $shortDuration = $therapy->duration ?? '';
+    if (Str::contains($shortDuration, '(')) {
+        // Trim text before the first '(' to remove extra details
+        $shortDuration = trim(Str::before($shortDuration, '('));
+    }
+@endphp
+
 <article
     class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col h-full">
     {{-- Media --}}
     <div class="relative h-44 sm:h-56 bg-muted/10 flex items-center justify-center overflow-hidden">
         @php
-$image = $therapy->image ?? null;
-// allow either absolute urls or storage paths
-if ($image) {
-    $imageSrc = preg_match('/^(http(s)?:)?\\/\\//', trim($image))
-        ? trim($image)
-        : asset('storage/' . ltrim($image, '/'));
-} else {
-    $imageSrc = null;
-}
+            $image = $therapy->image ?? null;
+            $imageSrc = $image
+                ? (preg_match('/^(http(s)?:)?\/\//', trim($image)) ? trim($image) : asset('storage/' . ltrim($image, '/')))
+                : null;
         @endphp
 
         @if($imageSrc)
             <img src="{{ $imageSrc }}" alt="{{ $therapy->image_alt ?? $therapy->title ?? 'Therapy image' }}" loading="lazy"
                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" />
         @else
-            {{-- Inline placeholder so you don't rely on an external fallback file --}}
             <div class="w-full h-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-primary/80" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" aria-hidden="true">
@@ -30,17 +47,23 @@ if ($image) {
             </div>
         @endif
 
-        {{-- small tag --}}
-        @if(!empty($therapy->tag))
-            <div class="absolute left-3 top-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold">
-                {{ $therapy->tag }}
+        {{-- tags badges (overlay top-left) --}}
+        @if (count($tags))
+            <div class="absolute left-3 top-3 z-30 flex flex-wrap gap-2 max-w-[72%]">
+                @foreach ($tags as $singleTag)
+                    <span
+                        class="text-xs leading-tight px-2 py-0.5 border rounded-full border-emerald-500 bg-white/90   text-foreground whitespace-nowrap   shadow-sm  ">
+                        {{ $singleTag }}
+                    </span>
+                @endforeach
             </div>
         @endif
 
-        {{-- duration badge --}}
-        @if(!empty($therapy->duration))
-            <div class="absolute right-3 bottom-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                {{ $therapy->duration }}
+        {{-- duration badge (overlay bottom-right) --}}
+        @if(!empty($shortDuration))
+            <div
+                class="absolute right-3 bottom-3 z-30 border rounded-full border-emerald-500 bg-white/90 text-xs px-2 py-1">
+                {{ $shortDuration }}
             </div>
         @endif
     </div>
@@ -48,7 +71,6 @@ if ($image) {
     {{-- Content --}}
     <div class="p-5 space-y-3 flex-1 flex flex-col">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-muted-foreground">{{ $therapy->tag ?? '—' }}</div>
             <div class="text-xs text-muted-foreground">
                 {{ optional($therapy->updated_at)->format('M d, Y') ?? '' }}
             </div>
@@ -64,37 +86,23 @@ if ($image) {
             </p>
         @endif
 
-        <!-- <div class="text-sm text-muted-foreground">
-            <span class="italic">Price:</span>
-            <span>
-                @if(isset($therapy->price) && is_numeric($therapy->price))
-                    {{ ($therapy->price_currency ?? 'INR') . ' ' . number_format((float) $therapy->price, 2) }}
-                @else
-                    —
-                @endif
-            </span>
-        </div> -->
-
-        {{-- Actions (pushed to bottom) --}}
         <div class="mt-auto flex justify-between gap-3 items-center w-full">
-
+            @php
+                $detailsUrl = (isset($therapy->slug) && !empty($therapy->slug)) ? route('therapies.show', $therapy->slug) : '#';
+            @endphp
             <div>
-                @php
-$detailsUrl = (isset($therapy->slug) && !empty($therapy->slug)) ? route('therapies.show', $therapy->slug) : '#';
-                @endphp
-
                 <a href="{{ $detailsUrl }}" class="inline-flex items-center gap-2 text-sm text-primary underline"
                     @if($detailsUrl === '#') aria-disabled="true" @endif>
                     View details
                 </a>
             </div>
             <div>
-            <button type="button" class="btn-primary inline-flex items-center gap-2 text-sm flex-1 justify-center px-4" data-booking
-                data-therapy="{{ $therapy->slug ?? '' }}" data-source="therapy-card"
-                aria-label="Book {{ $therapy->title ?? 'therapy' }}">
-                Book
-            </button>
-
+                <button type="button"
+                    class="btn-primary inline-flex items-center gap-2 text-sm flex-1 justify-center px-4" data-booking
+                    data-therapy="{{ $therapy->slug ?? '' }}" data-source="therapy-card"
+                    aria-label="Book {{ $therapy->title ?? 'therapy' }}">
+                    Book
+                </button>
             </div>
         </div>
     </div>

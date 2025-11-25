@@ -1,38 +1,23 @@
 @php
-    // Accept $testimonials passed from controller. Provide fallback sample only if empty.
-    $testimonials = $testimonials ?? collect();
+// Accept $testimonials passed from controller. Provide fallback sample only if empty.
+$testimonials = $testimonials ?? collect();
 
-    if ($testimonials->isEmpty()) {
-        // Fallback array (your existing sample) — keep for local dev
-        $testimonials = collect([
-            [
-                'name' => 'Sarah Johnson',
-                'location' => 'San Francisco, CA',
-                'avatar' => 'https://images.unsplash.com/photo-1494790108755-2616b169b037?w=150&h=150&fit=crop&crop=face',
-                'rating' => 5,
-                'text' => 'The Panchakarma treatment completely transformed my health...',
-                'treatment' => 'Panchakarma Detox',
-            ],
-            // ... rest of your sample items ...
-        ]);
-    } else {
-        // If $testimonials is a collection of models, normalize it to an array of arrays
-        $testimonials = $testimonials->map(function ($t) {
-            if (is_object($t)) {
-                return [
-                    'name' => $t->name ?? ($t->author_name ?? 'Anonymous'),
-                    'location' => $t->location ?? null,
-                    'avatar' => $t->avatar ? (Str::startsWith($t->avatar, ['http://', 'https://']) ? $t->avatar : asset('storage/' . ltrim($t->avatar, '/'))) : null,
-                    'rating' => $t->rating ?? null,
-                    'text' => $t->text ?? $t->message ?? '',
-                    'treatment' => $t->treatment ?? null,
-                    'isVideo' => (bool) ($t->is_video ?? false),
-                    'videoThumbnail' => $t->video_thumbnail ?? null,
-                ];
-            }
-            return (array) $t;
-        });
-    }
+if ($testimonials->isEmpty()) {
+    // Fallback array (your existing sample) — keep for local dev
+    $testimonials = collect([
+        [
+            'name' => 'Sarah Johnson',
+            'location' => 'San Francisco, CA',
+            'avatar' => 'https://images.unsplash.com/photo-1494790108755-2616b169b037?w=150&h=150&fit=crop&crop=face',
+            'rating' => 5,
+            'text' => 'The Panchakarma treatment completely transformed my health...',
+            'treatment' => 'Panchakarma Detox',
+        ],
+         
+    ]);
+} else {
+   
+}
 @endphp
 
 <section id="testimonials" class="py-16 lg:py-24 bg-background">
@@ -40,7 +25,7 @@
         <div class="text-center space-y-6 mb-16">
             <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">What Our Patients Say</h2>
             <p class="text-lg text-muted-foreground   mx-auto leading-relaxed">
-                Real stories from people who have experienced the transformative power of Ayurvedic healing.
+                 Hear from those who trusted Ayurveda to bring back their health, energy, and peace of mind.
             </p>
         </div>
 
@@ -49,25 +34,29 @@
             <div class="overflow-hidden">
                 <div id="testimonials-slider" class="testimonials-slider  ">
                     @foreach ($testimonials as $testimonial)
-                        <div class="testimonial-item-wrapper p-0  h-50">
-                            @include('components.home.testimonial-card', [
-                                'name' => $testimonial['name'],
-                                'location' => $testimonial['location'],
-                                'avatar' => $testimonial['avatar'],
-                                'rating' => $testimonial['rating'],
-                                'text' => $testimonial['text'],
-                                'treatment' => $testimonial['treatment'] ?? null,
-                                'isVideo' => $testimonial['isVideo'] ?? false,
-                                'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
-                            ])
-                        </div>
+                            <div class="testimonial-item-wrapper p-0  h-50"  data-aos="fade-up"
+                        data-aos-delay="{{ $loop->index * 80 }}"
+                        data-aos-anchor-placement="top-bottom">
+                       @include('components.home.testimonial-card', [
+                            'name' => $testimonial['name'],
+                            'location' => $testimonial['location'],
+                            'avatar' => $testimonial['avatar'],
+                            'rating' => $testimonial['rating'],
+                            'text' => $testimonial['text'],
+                            'treatment' => $testimonial['treatment'] ?? null,
+                            'isVideo' => $testimonial['isVideo'] ?? false,
+                            'video' => $testimonial['video'] ?? null,
+                            'videoThumbnail' => $testimonial['videoThumbnail'] ?? null,
+                        ])
+
+                            </div>
                     @endforeach
                 </div>
             </div>
  
             <!-- Navigation -->
             <div class="flex items-center justify-center gap-4 mt-8">
-                <button id="testimonials-prev" class="rounded-full border border-border hover:bg-primary/10 p-2">
+                <button id="testimonials-prev" class="rounded-full border border-border hover:bg-primary/10 p-2" data-aos="fade-up" data-aos-delay="120">
                     <!-- left chevron svg -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor">
@@ -77,7 +66,7 @@
 
                 <div id="testimonials-dots" class="flex gap-2"></div>
 
-                <button id="testimonials-next" class="rounded-full border border-border hover:bg-primary/10 p-2">
+                <button id="testimonials-next" class="rounded-full border border-border hover:bg-primary/10 p-2" data-aos="fade-up" data-aos-delay="120">
                     <!-- right chevron svg -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor">
@@ -85,12 +74,119 @@
                        </svg>
                 </button>
             </div>
-        </div>
-    </div>
+        </div> 
+    </div> 
 
-    {{-- Carousel JS: groups items into pages client-side so it's responsive (1/2/3 per page) --}}
-    <!-- Replace previous carousel JS + CSS with this -->
-    <script>
+
+
+ <script>
+ (function () {
+  function pauseOtherInlineVideos(keepWrapper) {
+    document.querySelectorAll('.testimonial-inline-video').forEach(v => {
+      if (!keepWrapper || !keepWrapper.contains(v)) {
+        try { v.pause(); } catch(e) {}
+      }
+    });
+  }
+
+  function createVideoElement(src, posterSrc) {
+    const video = document.createElement('video');
+    video.className = 'testimonial-inline-video absolute inset-0 w-full h-full object-cover';
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    video.setAttribute('playsinline', '');
+    if (posterSrc) video.setAttribute('poster', posterSrc);
+    // set src directly for reliability
+    video.src = src;
+    // ensure it visually overlays (absolute must be within relative wrapper)
+    video.style.position = 'absolute';
+    video.style.top = '0';
+    video.style.left = '0';
+    video.style.width = '100%';
+    video.style.height = '100%';
+    video.style.objectFit = 'cover';
+    return video;
+  }
+
+  document.addEventListener('click', async function (e) {
+    const playBtn = e.target.closest('.testimonial-video-play-btn');
+    if (!playBtn) return;
+
+    const wrapper = playBtn.closest('.testimonial-video-wrapper');
+    if (!wrapper) return;
+
+    const src = (wrapper.dataset.videoSrc || '').trim();
+    if (!src) {
+      console.warn('Missing data-video-src on testimonial wrapper', wrapper);
+      return;
+    }
+
+    const posterEl = wrapper.querySelector('.testimonial-video-poster');
+    const posterSrc = wrapper.dataset.videoThumb || (posterEl ? posterEl.src : '');
+
+    // Pause other inline videos
+    pauseOtherInlineVideos(wrapper);
+
+    // hide play button (poster stays visible while attempting autoplay)
+    playBtn.classList.add('hidden');
+
+    // create absolute-position video element (so it overlays poster)
+    const video = createVideoElement(src, posterSrc);
+
+    // create a close button
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'testimonial-video-close absolute top-2 right-2 z-40 rounded-full bg-white/90 p-1 shadow';
+    closeBtn.setAttribute('aria-label', 'Close video');
+    closeBtn.textContent = '✕';
+
+    // append video & close to wrapper (wrapper is positioned absolute/inset-0)
+    wrapper.appendChild(video);
+    wrapper.appendChild(closeBtn);
+
+    // try to autoplay
+    try {
+      await video.play();
+      // Autoplay started
+    } catch (err) {
+      // Autoplay blocked: show a manual overlay on top (tap to play)
+      const manual = document.createElement('button');
+      manual.type = 'button';
+      manual.className = 'testimonial-manual-play absolute inset-0 flex items-center justify-center z-50';
+      manual.setAttribute('aria-label', 'Tap to play video');
+      manual.innerHTML = `<span class="rounded-full bg-white/90 p-3 shadow-md transform"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`;
+      wrapper.appendChild(manual);
+
+      manual.addEventListener('click', async () => {
+        try {
+          await video.play();
+          manual.remove();
+        } catch (e) {
+          console.warn('Playback failed after manual click', e);
+        }
+      }, { once: true });
+    }
+
+    const cleanup = () => {
+      try { video.pause(); } catch (e) {}
+      if (video.parentNode) video.parentNode.removeChild(video);
+      if (closeBtn.parentNode) closeBtn.parentNode.removeChild(closeBtn);
+      const manual = wrapper.querySelector('.testimonial-manual-play');
+      if (manual && manual.parentNode) manual.parentNode.removeChild(manual);
+      // restore play button
+      playBtn.classList.remove('hidden');
+    };
+
+    closeBtn.addEventListener('click', cleanup);
+    video.addEventListener('ended', cleanup);
+  });
+
+  // pause inline videos on pagehide
+  window.addEventListener('pagehide', function () {
+    document.querySelectorAll('.testimonial-inline-video').forEach(v => { try { v.pause(); } catch(e) {} });
+  });
+})();
         (function() {
             const track = document.getElementById('testimonials-slider');
             if (!track) return;
@@ -215,6 +311,7 @@
     </script>
 
     <style>
+    
         /* Horizontal scrolling track with native swipe and snap */
         #testimonials-slider {
             display: flex;

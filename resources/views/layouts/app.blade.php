@@ -6,33 +6,33 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
 
     @php
-$siteName = config('app.name', 'Jivanam Wellness');
-$pageTitle = $title ?? $siteName;
-$metaTitle = $meta_title ?? $pageTitle;
-$metaDescription = $meta_description ?? 'Experience holistic healing through time-tested Ayurvedic therapies. Restore balance and vitality with our certified practitioners.';
-$metaKeywords = $meta_keywords ?? 'Ayurveda, Ayurvedic therapies, pain management, holistic wellness';
-$metaImage = $meta_image ?? asset('images/logo.png');
-$canonical = $canonical ?? url()->current();
-$twitterSite = config('services.twitter.username') ?? '@your_twitter';
+        $siteName = config('app.name', 'Jivanam Wellness');
+        $pageTitle = $title ?? $siteName;
+        $metaTitle = $meta_title ?? $pageTitle;
+        $metaDescription = $meta_description ?? 'Experience holistic healing through time-tested Ayurvedic therapies. Restore balance and vitality with our certified practitioners.';
+        $metaKeywords = $meta_keywords ?? 'Ayurveda, Ayurvedic therapies, pain management, holistic wellness';
+        $metaImage = $meta_image ?? asset('images/logo.png');
+        $canonical = $canonical ?? url()->current();
+        $twitterSite = config('services.twitter.username') ?? '@your_twitter';
 
-// Build structured data safely inside a PHP block to avoid Blade parsing `@context`.
-$structuredData = [
-    '@context' => 'https://schema.org',
-    '@type' => 'MedicalBusiness',
-    'name' => $siteName,
-    'url' => url('/'),
-    'logo' => asset('images/logo.png'),
-    'description' => $metaDescription,
-    'address' => [
-        '@type' => 'PostalAddress',
-        'addressLocality' => $address_city ?? 'Your City',
-        'addressCountry' => $address_country ?? 'IN',
-    ],
-    'telephone' => $business_phone ?? '+911234567890',
-    'sameAs' => $social_accounts ?? ['https://facebook.com/yourpage'],
-];
+        // Build structured data safely inside a PHP block to avoid Blade parsing `@context`.
+        $structuredData = [
+            '@context' => 'https://schema.org',
+            '@type' => 'MedicalBusiness',
+            'name' => $siteName,
+            'url' => url('/'),
+            'logo' => asset('images/logo.png'),
+            'description' => $metaDescription,
+            'address' => [
+                '@type' => 'PostalAddress',
+                'addressLocality' => $address_city ?? ' Coimbatore  , Tamil Nadu',
+                'addressCountry' => $address_country ?? 'IN',
+            ],
+            'telephone' => $business_phone ?? '+918220503388',
+            'sameAs' => $social_accounts ?? ['https://www.instagram.com/jivanam.wellness/'],
+        ];
 
-$structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     @endphp
 
     <title>{{ $metaTitle }}</title>
@@ -70,6 +70,9 @@ $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNE
     {{-- Structured data (printed safely) --}}
     <script type="application/ld+json">{!! $structuredJson !!}</script>
 
+    {{-- AOS CSS --}}
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     {{-- Assets --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -84,6 +87,7 @@ $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNE
             display: none !important;
         }
     </style>
+
     {{-- Floating Booking Styles --}}
     @stack('floating-styles')
 
@@ -91,24 +95,38 @@ $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNE
 </head>
 
 <body class="antialiased bg-gray-50 text-gray-900">
-    
+
     @include('components.commons.header')
 
     <main class="min-h-screen">
         {{ $slot ?? '' }}
         @yield('content')
     </main>
-    
+
     @include('components.commons.footer')
-    
+
     {{-- Floating Elements: include WhatsApp + booking after footer so they're not inside transformed containers --}}
     @includeWhen(view()->exists('components.whatsapp-float'), 'components.whatsapp-float')
     @includeWhen(view()->exists('components.floating-booking'), 'components.floating-booking')
     @includeWhen(view()->exists('components.floating-contact'), 'components.floating-contact')
-    
-    @stack('scripts')
 
- 
+    {{-- AOS JS --}}
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // Simple AOS initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                mirror: false,
+                offset: 50
+            });
+        });
+    </script>
+
+    @stack('scripts')
 </body>
 
 </html>

@@ -164,7 +164,7 @@
     background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
 }
 .booking-scroll-area {
   max-height: calc(100vh - 180px);

@@ -42,15 +42,16 @@
 <section id="clinics" class="py-16 lg:py-24 bg-muted/20">
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="text-center space-y-6 mb-12">
-            <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Our Clinic Locations</h2>
+            <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Your Healing Journey Begins Here - Choose
+                Your Nearest Branch</h2>
             <p class="text-lg text-muted-foreground   mx-auto leading-relaxed">
-                Find an Ayurvedic clinic near you. Each location offers the full range of traditional treatments with
-                experienced practitioners.
+                Find a Jivanam Wellness clinic near you and experience authentic Ayurvedic care close to home. Each
+                center offers the complete range of traditional treatments, guided by our expert practitioners.
             </p>
         </div>
 
         {{-- Filters --}}
-        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+        <!-- <div class="flex flex-col sm:flex-row gap-4 mb-8">
             <div class="flex flex-col sm:flex-row gap-4 mb-8">
                 <form id="clinicFilterForm" method="GET" class="flex flex-wrap gap-4 items-center"
                     onsubmit="submitWithAnchor(event, this)">
@@ -125,11 +126,16 @@
 
             </div>
 
-        </div>
+        </div> -->
 
         {{-- Clinics Grid --}}
         <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($filteredClinics as $clinic)
+
+                @php
+                    // small stagger per card
+                    $aosDelay = ($loop->index ?? 0) * 80;
+                @endphp
                 @include('components.home.clinic-card', [
                     'name' => $clinic['name'],
                     'address' => $clinic['address'],
@@ -140,6 +146,7 @@
                     'isOpen' => $clinic['isOpen'],
                     'specialties' => $clinic['specialties'],
                     'location_link' => $clinic['location_link'] ?? '',
+                    'aos_delay' => $aosDelay,
                 ])
             @empty
                 <div class="text-center py-12 col-span-full">

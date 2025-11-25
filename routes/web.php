@@ -9,7 +9,7 @@ use App\Http\Controllers\PainTechniqueController;
 use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\TherapyController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Log;
 // Home page
 // routes/web.php
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name(
@@ -31,6 +31,8 @@ Route::get('/pain-management', [PainTechniqueController::class, 'index'])->name(
     'pain-management'
 ); // Clinics page
 Route::get('/clinics', [ClinicsController::class, 'index'])->name('clinics');
+// All doctors page
+Route::get('/doctors', [App\Http\Controllers\DoctorController::class, 'index'])->name('doctors.index');
 
 // About page
 Route::get('/about', [TeamMemberController::class, 'index'])->name('about');
@@ -45,6 +47,10 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name(
     'blog.blog-show'
 );
-Route::post('/appointments', [AppointmentController::class, 'store'])->name(
-    'appointments.store'
-);
+Route::post('/appointments', [AppointmentController::class, 'store'])
+    ->name('appointments.store');
+
+Route::fallback(function () {
+    Log::warning('Fallback route redirected to home: ' . request()->method() . ' ' . request()->path());
+    return redirect()->route('home');
+});
