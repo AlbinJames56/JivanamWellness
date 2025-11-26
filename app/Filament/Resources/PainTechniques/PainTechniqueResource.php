@@ -51,14 +51,7 @@ class PainTechniqueResource extends Resource
                 Forms\Components\TextInput::make('duration')->placeholder('e.g. 30–60 min'),
                 Forms\Components\TextInput::make('price')->numeric()->nullable(),
                 Forms\Components\TextInput::make('price_currency')->default('INR')->maxLength(4)->nullable(),
-                Forms\Components\Select::make('categories')
-                    ->label('Categories')
-                    ->options(PainTechnique::categories())
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->placeholder('Select one or more categories')
-                    ->columnSpan(1),
+                
             ])->columns(2),
         ])->columns(1);
     }
@@ -69,7 +62,7 @@ class PainTechniqueResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->disk('public')->rounded(),
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('category')->sortable(),
+                 
                 Tables\Columns\BooleanColumn::make('featured'),
                 Tables\Columns\BooleanColumn::make('available'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),

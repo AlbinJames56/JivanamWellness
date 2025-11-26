@@ -23,10 +23,10 @@
                 @endphp
 
                 @foreach ($navItems as $item)
-                    @if ($item['route'] === 'pain-management')
-                        {{-- Pain Management: mega-dropdown --}}
+                    @if ($item['route'] === 'therapy')
+                        {{-- Therapies mega-dropdown under "Therapy" --}}
                         <div class="relative pain-mega group" data-mega>
-                            <a href="{{ route('pain-management') }}"
+                            <a href="{{ route('therapy') }}"
                                 class="relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg inline-flex items-center gap-2 {{ request()->routeIs($item['route']) ? 'text-primary bg-primary/5 font-semibold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }}"
                                 role="button" aria-haspopup="true" aria-expanded="false" data-mega-toggle>
                                 {{ $item['label'] }}
@@ -38,14 +38,14 @@
                                 </svg>
                             </a>
 
-                            {{-- Mega panel --}}
+                            {{-- Therapies mega panel --}}
                             <div class="mega-panel invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-focus-within:pointer-events-auto absolute left-1/2 transform -translate-x-1/2 bg-white rounded-xl border border-primary/30 shadow-2xl z-50"
                                 role="menu" aria-hidden="true">
                                 <div class="p-6">
                                     @php
-                                        $cats = $painNav['categories'] ?? [];
-                                        $grouped = $painNav['grouped'] ?? [];
-                                        $cats = array_slice($cats, 0, 3, true);
+                                        $cats = $therapyNav['categories'] ?? [];
+                                        $grouped = $therapyNav['grouped'] ?? [];
+                                        $cats = array_slice($cats, 0, 3, true); // show first 3 categories
                                     @endphp
 
                                     <div class="mega-grid">
@@ -56,12 +56,12 @@
                                                 <ul
                                                     class="text-sm text-muted-foreground space-y-2 max-h-[340px] overflow-y-auto pr-2">
                                                     @if (!empty($grouped[$ck]) && count($grouped[$ck]) > 0)
-                                                        @foreach ($grouped[$ck] as $tech)
+                                                        @foreach ($grouped[$ck] as $therapy)
                                                             <li>
-                                                                <a href="{{ url('/treatments/' . ($tech->slug ?? '')) }}"
+                                                                <a href="{{ url('/therapies/' . ($therapy->slug ?? '')) }}"
                                                                     class="rounded-md px-2 py-2 hover:bg-primary/5 focus:bg-primary/5 focus:outline-none transition-colors flex items-center justify-between"
                                                                     role="menuitem">
-                                                                    <span class="truncate">{{ $tech->title ?? 'Untitled' }}</span>
+                                                                    <span class="truncate">{{ $therapy->title ?? 'Untitled' }}</span>
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="w-4 h-4 ml-3 text-muted-foreground shrink-0" fill="none"
                                                                         viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -72,7 +72,7 @@
                                                             </li>
                                                         @endforeach
                                                     @else
-                                                        <li class="text-xs text-muted-foreground">No techniques</li>
+                                                        <li class="text-xs text-muted-foreground">No therapies</li>
                                                     @endif
                                                 </ul>
                                             </div>
@@ -82,18 +82,19 @@
                             </div>
                         </div>
                     @else
-                        {{-- normal nav item --}}
-                        <a href="{{ route($item['route']) }}"
-                            class="relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg
-                                        {{ request()->routeIs($item['route']) ? 'text-primary bg-primary/5 font-semibold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }}">
-                            {{ $item['label'] }}
-                            @if (request()->routeIs($item['route']))
-                                <span
-                                    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
-                            @endif
-                        </a>
+                            {{-- normal nav item --}}
+                            <a href="{{ route($item['route']) }}"
+                                class="relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg
+                           {{ request()->routeIs($item['route']) ? 'text-primary bg-primary/5 font-semibold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }}">
+                                {{ $item['label'] }}
+                                @if (request()->routeIs($item['route']))
+                                    <span
+                                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
+                                @endif
+                            </a>
                     @endif
                 @endforeach
+
             </nav>
 
             {{-- Desktop Actions --}}
@@ -141,10 +142,10 @@
             <div class="px-4 py-6 space-y-4">
                 <nav class="flex flex-col space-y-3" aria-label="Mobile Primary">
                     @foreach ($navItems as $item)
-                        @if($item['route'] === 'pain-management')
+                        @if ($item['route'] === 'therapy')
                             <div class="w-full">
                                 <div class="flex items-center justify-between px-4">
-                                    <a href="{{ route('pain-management') }}"
+                                    <a href="{{ route('therapy') }}"
                                         class="flex-1 text-base font-medium py-3 rounded-xl text-gray-700 hover:text-primary hover:bg-gray-50 px-0">
                                         {{ $item['label'] }}
                                     </a>
@@ -152,7 +153,7 @@
                                     <button type="button" id="mobilePainChevron" aria-controls="mobilePainPanel"
                                         aria-expanded="false"
                                         class="ml-3 p-2 rounded-md inline-flex items-center justify-center hover:bg-gray-100 transition"
-                                        title="Expand Pain Management categories">
+                                        title="Expand Therapies">
                                         <svg id="mobilePainChevronSvg" class="w-5 h-5 text-gray-500 transition-transform"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -163,27 +164,27 @@
 
                                 <div id="mobilePainPanel" class="mt-2 px-4 hidden" aria-hidden="true">
                                     @php
-                                        $cats = $painNav['categories'] ?? [];
-                                        $grouped = $painNav['grouped'] ?? [];
+                                        $cats = $therapyNav['categories'] ?? [];
+                                        $grouped = $therapyNav['grouped'] ?? [];
                                         $cats = array_slice($cats, 0, 3, true);
                                     @endphp
 
                                     <div class="grid grid-cols-1 gap-4">
-                                        @foreach($cats as $ck => $clabel)
+                                        @foreach ($cats as $ck => $clabel)
                                             <div>
                                                 <h4 class="text-sm font-semibold text-foreground mb-2">{{ $clabel }}</h4>
                                                 <ul class="space-y-1">
-                                                    @if(!empty($grouped[$ck]) && count($grouped[$ck]) > 0)
-                                                        @foreach($grouped[$ck] as $tech)
+                                                    @if (!empty($grouped[$ck]) && count($grouped[$ck]) > 0)
+                                                        @foreach ($grouped[$ck] as $therapy)
                                                             <li>
-                                                                <a href="{{ url('/treatments/' . ($tech->slug ?? '')) }}"
+                                                                <a href="{{ url('/therapies/' . ($therapy->slug ?? '')) }}"
                                                                     class="block rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-primary/5 transition-colors">
-                                                                    {{ $tech->title ?? 'Untitled' }}
+                                                                    {{ $therapy->title ?? 'Untitled' }}
                                                                 </a>
                                                             </li>
                                                         @endforeach
                                                     @else
-                                                        <li class="text-xs text-muted-foreground">No techniques</li>
+                                                        <li class="text-xs text-muted-foreground">No therapies</li>
                                                     @endif
                                                 </ul>
                                             </div>
@@ -192,19 +193,20 @@
                                 </div>
                             </div>
                         @else
-                            <a href="{{ route($item['route']) }}"
-                                class="flex items-center px-4 py-3 text-base font-medium transition-all duration-200 rounded-xl
-                                            {{ request()->routeIs($item['route']) ? 'text-primary bg-primary/10 border border-primary/20 font-semibold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }}">
-                                <span class="flex-1">{{ $item['label'] }}</span>
+                                    <a href="{{ route($item['route']) }}"
+                                        class="flex items-center px-4 py-3 text-base font-medium transition-all duration-200 rounded-xl
+                               {{ request()->routeIs($item['route']) ? 'text-primary bg-primary/10 border border-primary/20 font-semibold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }}">
+                                        <span class="flex-1">{{ $item['label'] }}</span>
 
-                                @if (request()->routeIs($item['route']))
-                                    <i class="fa-solid fa-check text-primary text-sm"></i>
-                                @else
-                                    <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
-                                @endif
-                            </a>
+                                        @if (request()->routeIs($item['route']))
+                                            <i class="fa-solid fa-check text-primary text-sm"></i>
+                                        @else
+                                            <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+                                        @endif
+                                    </a>
                         @endif
                     @endforeach
+
                 </nav>
 
                 {{-- Mobile Actions --}}
