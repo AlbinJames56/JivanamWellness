@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use App\Models\PainTechnique; 
+use App\Models\Therapy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\View; 
+use Illuminate\Support\Facades\View;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -22,57 +23,75 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('components.commons.header', function ($view) {
-            $payload = Cache::remember('pain_techniques_nav', 60 * 60, function () {
-                // load all available techniques (you may add ->limit or eager loads if necessary)
-                $techniques = PainTechnique::where('available', true)
+            $payload = Cache::remember('therapy_nav', 60 * 60, function () {
+                // Load all available therapies (add scopes/limits if needed)
+                $therapies = Therapy::where('available', true)
                     ->orderBy('title')
-                    ->get(['title', 'slug', 'categories', 'category']); // only fields we need
+                    ->get(['title', 'slug', 'categories']); // <-- removed "category"
 
-                // categories list from model constant (fall back to a simple array)
-                $categoriesList = method_exists(PainTechnique::class, 'categories')
-                    ? PainTechnique::categories()
+                // Categories list from model static method, or fallback
+                $categoriesList = method_exists(Therapy::class, 'categories')
+                    ? Therapy::categories()
                     : [
-                        'massage' => 'Massage',
-                        'detox' => 'Detox',
-                        'therapy' => 'Therapy',
+                        'back_pain' => 'Back Pain',
+                        'neck_pain' => 'Neck & Shoulder',
+                        'joint_pain' => 'Joint Pain',
                         'other' => 'Other',
                     ];
 
                 $grouped = [];
-                // initialize groups
+
+                // Initialize groups
                 foreach ($categoriesList as $key => $label) {
                     $grouped[$key] = collect();
                 }
-                $grouped['uncategorized'] = collect(); // fallback group
+                $grouped['uncategorized'] = collect(); // fallback bucket
 
-                foreach ($techniques as $t) {
-                    // normalized categories: (1) try JSON array, (2) single category fallback
+                foreach ($therapies as $therapy) {
                     $cats = [];
-                    if (!empty($t->categories) && is_array($t->categories)) {
-                        $cats = $t->categories;
-                    } elseif (!empty($t->category)) {
-                        $cats = [$t->category];
+
+                    // Normalize categories from the "categories" column only
+                    $raw = $therapy->categories;
+
+                    if (is_array($raw)) {
+                        // e.g. cast in model: protected $casts = ['categories' => 'array'];
+                        $cats = $raw;
+                    } elseif (is_string($raw)) {
+                        // could be JSON or comma-separated string
+                        $decoded = json_decode($raw, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                            $cats = $decoded;
+                        } else {
+                            // fall back to comma separated list
+                            $cats = array_filter(array_map('trim', explode(',', $raw)));
+                        }
                     }
 
                     if (empty($cats)) {
-                        $grouped['uncategorized']->push($t);
+                        $grouped['uncategorized']->push($therapy);
                         continue;
                     }
 
                     $assigned = false;
+
                     foreach ($cats as $c) {
                         if (isset($categoriesList[$c])) {
-                            $grouped[$c]->push($t);
+                            $grouped[$c]->push($therapy);
                             $assigned = true;
                         } else {
-                            // unknown category key -> put into uncategorized
-                            $grouped['uncategorized']->push($t);
+                            // Unknown category key -> put into uncategorized
+                            $grouped['uncategorized']->push($therapy);
                         }
+                    }
+
+                    if (!$assigned && empty($cats)) {
+                        $grouped['uncategorized']->push($therapy);
                     }
                 }
 
-                // convert to simple data arrays for blade and limit each category for nav (e.g. 6 items)
+                // Limit each category to a handful of items for the nav
                 $maxNavItemsPerCategory = 6;
+
                 $result = [
                     'categories' => $categoriesList,
                     'grouped' => array_map(function ($col) use ($maxNavItemsPerCategory) {
@@ -83,7 +102,8 @@ class AppServiceProvider extends ServiceProvider
                 return $result;
             });
 
-            $view->with('painNav', $payload);
+            // This is what the header will read from
+            $view->with('therapyNav', $payload);
         });
     }
 }

@@ -10,6 +10,13 @@ class Therapy extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // canonical categories used for navigation and grouping
+    public const CATEGORIES = [
+        'massage' => 'Massage',
+        'detox' => 'Detox',
+        'therapy' => 'Therapy',
+    ];
+
     protected $fillable = [
         'title',
         'slug',
@@ -21,6 +28,7 @@ class Therapy extends Model
         'gallery', // json
         'duration',
         'tags',
+        'categories', // <-- added
         'featured',
         'price',
         'price_currency',
@@ -36,12 +44,14 @@ class Therapy extends Model
         'contraindications' => 'array',
         'gallery' => 'array',
         'tags' => 'array',
+        'categories' => 'array', // <-- added
     ];
 
     public function testimonials()
     {
         return $this->hasMany(Testimonial::class);
     }
+
     public function getTagsAttribute($value)
     {
         if (is_string($value)) {
@@ -50,4 +60,27 @@ class Therapy extends Model
         return $value ?: [];
     }
 
+    /**
+     * Return human-readable labels for the categories array.
+     */
+    public function getCategoriesLabelsAttribute(): string
+    {
+        $cats = $this->categories ?? [];
+        if (empty($cats)) {
+            return '';
+        }
+
+        return collect($cats)
+            ->map(fn($c) => self::CATEGORIES[$c] ?? $c)
+            ->filter()
+            ->implode(', ');
+    }
+
+    /**
+     * Return categories list for forms / selects.
+     */
+    public static function categories(): array
+    {
+        return self::CATEGORIES;
+    }
 }

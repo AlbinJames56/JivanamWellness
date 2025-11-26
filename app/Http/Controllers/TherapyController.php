@@ -58,16 +58,14 @@ class TherapyController extends Controller
     {
         $therapy = Therapy::where('slug', $slug)->firstOrFail();
 
-        // Optionally fetch related testimonials or other data
         $relatedTestimonials = Testimonial::where('therapy_id', $therapy->id)
             ->latest()
             ->take(3)
             ->get();
 
-        // Prepare sanitized HTML for rendering
         $raw = (string) ($therapy->content ?? '');
 
-        // If it doesn't contain HTML tags, treat as Markdown/plain text
+        // detect if contains HTML tags
         $containsHtml = $raw !== strip_tags($raw);
 
         if (!$containsHtml) {
@@ -79,14 +77,17 @@ class TherapyController extends Controller
         }
 
         try {
+            // main path: use Mews Purifier with your profile
             $safeHtml = Purifier::clean($html, 'frontend_html');
         } catch (\Throwable $e) {
             \Log::warning('Purifier failed: ' . $e->getMessage());
-            // fallback to a minimal helper (app/helpers.php: clean)
-            $safeHtml = clean($html, 'default');
+
+            // simple, safe fallback: allow a few basic tags or even strip all tags
+            $allowedTags = '<p><br><strong><em><ul><ol><li><a><h2><h3><blockquote>';
+            $safeHtml = strip_tags($html, $allowedTags);
         }
 
-        // Pass sanitized HTML to view
         return view('components.therapy.therapy-show', compact('therapy', 'relatedTestimonials', 'safeHtml'));
     }
+
 }

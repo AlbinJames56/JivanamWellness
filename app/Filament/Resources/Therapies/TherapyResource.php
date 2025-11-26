@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
@@ -47,7 +48,7 @@ class TherapyResource extends Resource
                                 'Traditional Healing',
                                 'Body Pain Relief',
                             ]),
-
+                        Select::make('categories')->label('Categories')->options(Therapy::categories())->multiple()->searchable()->preload()->placeholder('Select one or more categories')->columnSpan(1),
                         Forms\Components\Textarea::make('summary')->rows(3)->columnSpan(1),
                         Forms\Components\Textarea::make('excerpt')->rows(2)->maxLength(255)->columnSpan(1),
                         RichEditor::make('content')
@@ -116,6 +117,16 @@ class TherapyResource extends Resource
                     return $state;
                 })
                 ->wrap(),
+            TextColumn::make('categories')
+                ->label('Categories')
+                ->formatStateUsing(function ($state) {
+                    if (is_array($state)) {
+                        return implode(', ', $state);
+                    }
+                    return $state;
+                })
+                ->wrap(),
+
             Tables\Columns\BooleanColumn::make('featured'),
             Tables\Columns\TextColumn::make('created_at')->dateTime('M d, Y'),
         ])
