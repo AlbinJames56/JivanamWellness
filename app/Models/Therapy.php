@@ -12,9 +12,9 @@ class Therapy extends Model
 
     // canonical categories used for navigation and grouping
     public const CATEGORIES = [
-        'massage' => 'Massage',
-        'detox' => 'Detox',
-        'therapy' => 'Therapy',
+        'Therapeutic_Therapy' => 'Therapeutic Therapy',
+        'Panchakarma' => 'Panchakarma',
+        'Swedana_karma' => 'Swedana karma',
     ];
 
     protected $fillable = [
@@ -44,7 +44,7 @@ class Therapy extends Model
         'contraindications' => 'array',
         'gallery' => 'array',
         'tags' => 'array',
-        'categories' => 'array', // <-- added
+        'categories' => 'array',  
     ];
 
     public function testimonials()

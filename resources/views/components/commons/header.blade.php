@@ -42,31 +42,30 @@
                             <div class="mega-panel invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-focus-within:pointer-events-auto absolute left-1/2 transform -translate-x-1/2 bg-white rounded-xl border border-primary/30 shadow-2xl z-50"
                                 role="menu" aria-hidden="true">
                                 <div class="p-6">
-                                    @php
-                                        $cats = $therapyNav['categories'] ?? [];
-                                        $grouped = $therapyNav['grouped'] ?? [];
-                                        $cats = array_slice($cats, 0, 3, true); // show first 3 categories
-                                    @endphp
+                                   @php 
+                                    $cats = $therapyNav['categories'] ?? [];
+                                    $grouped = $therapyNav['grouped'] ?? [];
 
-                                    <div class="mega-grid">
-                                        @foreach ($cats as $ck => $clabel)
+                                    $desktopCats = $cats; // show all categories as columns on large screens
+                                    $mobileCats  = array_slice($cats, 0, 3, true); // keep mobile limited
+                                @endphp
+                                   <div class="mega-grid">
+                                        @foreach ($desktopCats as $ck => $clabel)
                                             <div class="mega-column">
                                                 <h4 class="text-sm font-semibold text-foreground">{{ $clabel }}</h4>
 
-                                                <ul
-                                                    class="text-sm text-muted-foreground space-y-2 max-h-[340px] overflow-y-auto pr-2">
+                                                <ul class="text-sm text-muted-foreground space-y-2 max-h-[340px] overflow-y-auto pr-2">
                                                     @if (!empty($grouped[$ck]) && count($grouped[$ck]) > 0)
                                                         @foreach ($grouped[$ck] as $therapy)
                                                             <li>
                                                                 <a href="{{ url('/therapies/' . ($therapy->slug ?? '')) }}"
-                                                                    class="rounded-md px-2 py-2 hover:bg-primary/5 focus:bg-primary/5 focus:outline-none transition-colors flex items-center justify-between"
-                                                                    role="menuitem">
+                                                                class="rounded-md px-2 py-2 hover:bg-primary/5 focus:bg-primary/5 focus:outline-none transition-colors flex items-center justify-between"
+                                                                role="menuitem">
                                                                     <span class="truncate">{{ $therapy->title ?? 'Untitled' }}</span>
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="w-4 h-4 ml-3 text-muted-foreground shrink-0" fill="none"
                                                                         viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                                            stroke-width="2" d="M9 5l7 7-7 7" />
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                                     </svg>
                                                                 </a>
                                                             </li>

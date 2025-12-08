@@ -24,45 +24,57 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('components.commons.header', function ($view) {
             $payload = Cache::remember('therapy_nav', 60 * 60, function () {
-                // Load all available therapies (add scopes/limits if needed)
-                $therapies = Therapy::where('available', true)
+                $therapies = \App\Models\Therapy::where('available', true)
                     ->orderBy('title')
-                    ->get(['title', 'slug', 'categories']); // <-- removed "category"
+                    ->get(['title', 'slug', 'categories']);
 
-                // Categories list from model static method, or fallback
-                $categoriesList = method_exists(Therapy::class, 'categories')
-                    ? Therapy::categories()
+                $categoriesList = method_exists(\App\Models\Therapy::class, 'categories')
+                    ? \App\Models\Therapy::categories()
                     : [
-                        'back_pain' => 'Back Pain',
-                        'neck_pain' => 'Neck & Shoulder',
-                        'joint_pain' => 'Joint Pain',
-                        'other' => 'Other',
+                        'Therapeutic_Therapy' => 'Therapeutic Therapy',
+                        'Panchakarma' => 'Panchakarma',
+                        'Swedana_karma' => 'Swedana karma',
                     ];
 
-                $grouped = [];
+                // Normalizer: turn any candidate into a predictable token
+                $normalize = function (string $s): string {
+                    $s = trim($s);
+                    // remove extra spaces, convert to underscore, lowercase
+                    $s = preg_replace('/[^\p{L}\p{N}]+/u', '_', $s);
+                    $s = trim($s, '_');
+                    return mb_strtolower($s);
+                };
 
-                // Initialize groups
+                // Build lookup maps:
+                // - normalizedLabelMap[ normalized(label) ] = originalKey
+                // - normalizedKeyMap[ normalized(key) ] = originalKey
+                $normalizedLabelMap = [];
+                $normalizedKeyMap = [];
+                foreach ($categoriesList as $key => $label) {
+                    $normalizedLabelMap[$normalize((string) $label)] = $key;
+                    $normalizedKeyMap[$normalize((string) $key)] = $key;
+                    // also keep lowercase key (defensive)
+                    $normalizedKeyMap[mb_strtolower($key)] = $key;
+                }
+
+                $grouped = [];
                 foreach ($categoriesList as $key => $label) {
                     $grouped[$key] = collect();
                 }
-                $grouped['uncategorized'] = collect(); // fallback bucket
+                $grouped['uncategorized'] = collect();
 
                 foreach ($therapies as $therapy) {
                     $cats = [];
 
-                    // Normalize categories from the "categories" column only
                     $raw = $therapy->categories;
 
                     if (is_array($raw)) {
-                        // e.g. cast in model: protected $casts = ['categories' => 'array'];
                         $cats = $raw;
                     } elseif (is_string($raw)) {
-                        // could be JSON or comma-separated string
                         $decoded = json_decode($raw, true);
                         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                             $cats = $decoded;
                         } else {
-                            // fall back to comma separated list
                             $cats = array_filter(array_map('trim', explode(',', $raw)));
                         }
                     }
@@ -72,26 +84,66 @@ class AppServiceProvider extends ServiceProvider
                         continue;
                     }
 
-                    $assigned = false;
-
+                    $assignedAny = false;
                     foreach ($cats as $c) {
-                        if (isset($categoriesList[$c])) {
-                            $grouped[$c]->push($therapy);
-                            $assigned = true;
-                        } else {
-                            // Unknown category key -> put into uncategorized
+                        if ($c === null || $c === '')
+                            continue;
+                        $candidate = (string) $c;
+
+                        // 1) exact key match (case-sensitive)
+                        if (isset($grouped[$candidate])) {
+                            $grouped[$candidate]->push($therapy);
+                            $assignedAny = true;
+                            continue;
+                        }
+
+                        // 2) case-insensitive key match
+                        $lower = mb_strtolower($candidate);
+                        if (isset($normalizedKeyMap[$lower])) {
+                            $target = $normalizedKeyMap[$lower];
+                            $grouped[$target]->push($therapy);
+                            $assignedAny = true;
+                            continue;
+                        }
+
+                        // 3) normalized key match
+                        $norm = $normalize($candidate);
+                        if (isset($normalizedKeyMap[$norm])) {
+                            $target = $normalizedKeyMap[$norm];
+                            $grouped[$target]->push($therapy);
+                            $assignedAny = true;
+                            continue;
+                        }
+
+                        // 4) normalized label match (match against human labels)
+                        if (isset($normalizedLabelMap[$norm])) {
+                            $target = $normalizedLabelMap[$norm];
+                            $grouped[$target]->push($therapy);
+                            $assignedAny = true;
+                            continue;
+                        }
+
+                        // 5) last resort: case-insensitive label comparison
+                        foreach ($categoriesList as $k => $label) {
+                            if (strcasecmp($label, $candidate) === 0) {
+                                $grouped[$k]->push($therapy);
+                                $assignedAny = true;
+                                break;
+                            }
+                        }
+
+                        if (!$assignedAny) {
                             $grouped['uncategorized']->push($therapy);
                         }
                     }
 
-                    if (!$assigned && empty($cats)) {
+                    // nothing matched at all -> uncategorized
+                    if (!$assignedAny) {
                         $grouped['uncategorized']->push($therapy);
                     }
                 }
 
-                // Limit each category to a handful of items for the nav
                 $maxNavItemsPerCategory = 6;
-
                 $result = [
                     'categories' => $categoriesList,
                     'grouped' => array_map(function ($col) use ($maxNavItemsPerCategory) {
@@ -99,10 +151,12 @@ class AppServiceProvider extends ServiceProvider
                     }, $grouped),
                 ];
 
+                // Optional debug: remove once OK
+                // Log::debug('therapy_nav payload', $result);
+
                 return $result;
             });
 
-            // This is what the header will read from
             $view->with('therapyNav', $payload);
         });
     }
