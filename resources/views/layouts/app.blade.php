@@ -2,6 +2,17 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P4FRCMTS');
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
 
@@ -25,11 +36,11 @@
             'description' => $metaDescription,
             'address' => [
                 '@type' => 'PostalAddress',
-                'addressLocality' => $address_city ?? ' Coimbatore  , Tamil Nadu',
+                'addressLocality' => $address_city ?? 'Your City',
                 'addressCountry' => $address_country ?? 'IN',
             ],
-            'telephone' => $business_phone ?? '+918220503388',
-            'sameAs' => $social_accounts ?? ['https://www.instagram.com/jivanam.wellness/'],
+            'telephone' => $business_phone ?? '+911234567890',
+            'sameAs' => $social_accounts ?? ['https://facebook.com/yourpage'],
         ];
 
         $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -70,9 +81,6 @@
     {{-- Structured data (printed safely) --}}
     <script type="application/ld+json">{!! $structuredJson !!}</script>
 
-    {{-- AOS CSS --}}
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     {{-- Assets --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -87,7 +95,6 @@
             display: none !important;
         }
     </style>
-
     {{-- Floating Booking Styles --}}
     @stack('floating-styles')
 
@@ -95,7 +102,12 @@
 </head>
 
 <body class="antialiased bg-gray-50 text-gray-900">
-
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P4FRCMTS" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
     @include('components.commons.header')
 
     <main class="min-h-screen">
@@ -110,23 +122,9 @@
     @includeWhen(view()->exists('components.floating-booking'), 'components.floating-booking')
     @includeWhen(view()->exists('components.floating-contact'), 'components.floating-contact')
 
-    {{-- AOS JS --}}
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <script>
-        // Simple AOS initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true,
-                mirror: false,
-                offset: 50
-            });
-        });
-    </script>
-
     @stack('scripts')
+
+
 </body>
 
 </html>
