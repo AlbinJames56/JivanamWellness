@@ -11,12 +11,12 @@
 
                     <div class="absolute inset-0 bg-white/70 flex items-end justify-center p-6">
                         <div>
-                            <h1 class="text-2xl md:text-3xl text-white/70  font-extrabold tracking-wide 
+                            <h1 class="text-2xl md:text-3xl text-black/70  font-extrabold tracking-wide 
                                    drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
                                 Our Doctors
                             </h1>
 
-                            <p class="text-sm md:text-base text-white/70  font-medium mt-1
+                            <p class="text-sm md:text-base text-black/70  font-medium mt-1
                                   drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]">
                                 Meet our experienced panel — primary consultants and supporting duty doctors.
                             </p>
@@ -27,11 +27,14 @@
 
 
             {{-- Main Doctors --}}
+            
             <div class="mb-12">
-                <h2 class="text-xl md:text-2xl font-semibold text-foreground mb-4">Main Doctors</h2>
-                @if($mainDoctors->isEmpty())
-                    <p class="text-muted-foreground">Main doctors will be listed here soon.</p>
+                  @if($mainDoctors->isEmpty())
+                 
+              
+                    <p class=" "> </p>
                 @else
+                 <h2 class="text-xl md:text-2xl font-semibold text-foreground mb-4">Main Doctors</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($mainDoctors as $doctor)
                             {{-- reuse existing card component; pass model or data as expected --}}
@@ -43,7 +46,7 @@
 
             {{-- Other Duty Doctors --}}
             <div class="mb-24">
-                <h2 class="text-xl md:text-2xl font-semibold text-foreground mb-4">Other Duty Doctors</h2>
+                <h2 class="text-xl md:text-2xl font-semibold text-foreground mb-4">Duty Doctors</h2>
 
                 @if($dutyDoctors->isEmpty())
                     <p class="text-muted-foreground">No supporting doctors available right now.</p>

@@ -34,7 +34,7 @@ if ($testimonials->isEmpty()) {
             <div class="overflow-hidden">
                 <div id="testimonials-slider" class="testimonials-slider  ">
                     @foreach ($testimonials as $testimonial)
-                            <div class="testimonial-item-wrapper p-0  h-50"  data-aos="fade-up"
+                            <div class="testimonial-item-wrapper p-0  "  data-aos="fade-up"
                         data-aos-delay="{{ $loop->index * 80 }}"
                         data-aos-anchor-placement="top-bottom">
                        @include('components.home.testimonial-card', [

@@ -2,7 +2,7 @@
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="text-center space-y-6 mb-8" data-aos="fade-up" data-aos-delay="80">
             <h2 class="text-3xl lg:text-4xl font-semibold text-foreground">Meet Our Expert Doctors</h2>
-            <p class="text-lg text-muted-foreground mx-auto leading-relaxed max-w-2xl">
+            <p class="text-lg text-muted-foreground mx-auto leading-relaxed  ">
                 Discover the skilled practitioners guiding our therapies and personalised care plans.
             </p>
         </div>

@@ -31,7 +31,7 @@ if ($blogPosts instanceof \Illuminate\Support\Collection) {
     <div class="max-w-[1100px] mx-auto px-5">
         <div class="mb-16 relative">
             {{-- Centered heading/subheading --}}
-            <div class="max-w-2xl mx-auto text-center space-y-4">
+            <div class="  mx-auto text-center space-y-4">
                 <h2 class="text-3xl lg:text-4xl font-semibold text-foreground"  data-aos="fade-up" data-aos-delay="80" data-aos-once="true">
                     Our Blogs
                 </h2>
